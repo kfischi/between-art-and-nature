@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { getLocation } from '@/lib/locations'
 import PropertyHero from '@/components/PropertyHero'
 import ScrollReveal from '@/components/ScrollReveal'
+import KleminaGallery from '@/components/KleminaGallery'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -112,40 +113,8 @@ export default function AchuzatKlentinaPage() {
         `}</style>
       </section>
 
-      {/* GALLERY */}
-      <section style={{ padding: '6rem 4rem', background: 'var(--bark)' }}>
-        <ScrollReveal>
-          <div style={{ fontSize: '.62rem', letterSpacing: '.28em', color: loc.color, marginBottom: '.7rem', display: 'flex', alignItems: 'center', gap: '.7rem' }}>
-            גלריה
-            <span style={{ width: 22, height: 1, background: loc.color, display: 'inline-block' }} />
-          </div>
-          <h2 style={{ fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: 'clamp(2rem, 4vw, 4rem)', fontWeight: 300, marginBottom: '3rem' }}>
-            <em style={{ fontStyle: 'italic', color: loc.color }}>ראו</em> את המקום
-          </h2>
-        </ScrollReveal>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px' }}>
-          {loc.gallery.map((img, i) => (
-            <ScrollReveal key={i} delay={i * 0.08}>
-              <div style={{ position: 'relative', aspectRatio: i === 0 ? '16/9' : '4/3', overflow: 'hidden',
-                gridColumn: i === 0 ? 'span 2' : 'auto' }}>
-                <Image
-                  src={img}
-                  alt={`${loc.name} — תמונה ${i + 1}`}
-                  fill
-                  style={{ objectFit: 'cover', filter: 'brightness(.8) saturate(1.1)', transition: 'transform .8s' }}
-                  sizes="(max-width: 700px) 100vw, 33vw"
-                />
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
-
-        <style>{`
-          @media (max-width: 700px) {
-            .gallery-grid { grid-template-columns: 1fr !important; }
-          }
-        `}</style>
-      </section>
+      {/* GALLERY — Netflix Style */}
+      <KleminaGallery />
 
       {/* CTA */}
       <section style={{ padding: '6rem 4rem', background: 'var(--soil)', textAlign: 'center' }}>
