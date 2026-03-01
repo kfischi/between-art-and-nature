@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Location } from '@/lib/locations'
+import { Icon } from '@/components/Icons'
 import PropertyHero from '@/components/PropertyHero'
 import ScrollReveal from '@/components/ScrollReveal'
 
@@ -221,7 +222,7 @@ export default function PropertyPage({ loc }: { loc: Location }) {
         <div style={{ display: 'flex', gap: 2, overflowX: 'auto', scrollbarWidth: 'none', padding: '0 4rem 1rem' }}>
           {loc.rooms.map((room, i) => (
             <div key={i} style={{ flexShrink: 0, width: 300, background: 'var(--bark)', border: `1px solid rgba(${cRgb},.1)`, padding: '2.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '.8rem' }}>
-              <div style={{ fontSize: '2rem' }}>{room.icon}</div>
+              <div style={{ opacity: .7, marginBottom: '.2rem' }}><Icon name={room.icon} size={20} color={loc.color} strokeWidth={1} /></div>
               <div style={{ fontFamily: F, fontSize: '1.3rem', fontWeight: 300, color: 'var(--cream)' }}>{room.name}</div>
               <div style={{ fontSize: '.72rem', letterSpacing: '.08em', color: c }}>{room.capacity}</div>
               <div style={{ fontSize: '.8rem', color: 'var(--muted)', paddingBottom: '.8rem', borderBottom: `1px solid rgba(${cRgb},.1)` }}>{room.beds}</div>
@@ -256,7 +257,7 @@ export default function PropertyPage({ loc }: { loc: Location }) {
               <div style={{ padding: '2.8rem 2.2rem', background: 'var(--log)', borderTop: `2px solid rgba(${cRgb},${i === 0 ? '.5' : '.1'})`, transition: 'border-color .4s' }}
                 onMouseEnter={e => (e.currentTarget.style.borderColor = c)}
                 onMouseLeave={e => (e.currentTarget.style.borderColor = i === 0 ? `rgba(${cRgb},.5)` : `rgba(${cRgb},.1)`)}>
-                <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>{item.icon}</div>
+                <div style={{ marginBottom: '1.2rem' }}><Icon name={item.icon} size={22} color={loc.color} strokeWidth={1} /></div>
                 <div style={{ fontFamily: F, fontSize: '1.2rem', fontWeight: 300, color: 'var(--cream)', marginBottom: '.8rem' }}>{item.title}</div>
                 <div style={{ fontSize: '.85rem', lineHeight: 1.8, color: 'var(--muted)' }}>{item.description}</div>
               </div>
@@ -322,7 +323,7 @@ export default function PropertyPage({ loc }: { loc: Location }) {
             <ScrollReveal key={i} delay={i * 0.07}>
               <div style={{ display: 'flex', gap: '2rem', padding: '2.2rem', background: i % 2 === 0 ? 'var(--log)' : 'var(--soil)', borderBottom: `1px solid rgba(${cRgb},.08)`, alignItems: 'flex-start' }}>
                 <div style={{ fontFamily: F, fontSize: '3.5rem', fontWeight: 300, lineHeight: 1, color: `rgba(${cRgb},.12)`, flexShrink: 0, width: 48, textAlign: 'center' }}>
-                  {a.icon}
+                  <Icon name={a.icon} size={20} color={loc.color} strokeWidth={1} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '.8rem', marginBottom: '.5rem' }}>
