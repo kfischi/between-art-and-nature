@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import AiChat from '@/components/AiChat' // שורה 1: ייבוא הצ'אטבוט
 
 export const metadata: Metadata = {
   title: 'בין אומנות לטבע — נופש בגליל',
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Nav />
         <main>{children}</main>
         <Footer />
+        <AiChat /> {/* שורה 2: הוספת הרכיב מעל סגירת ה-body */}
       </body>
     </html>
   )
