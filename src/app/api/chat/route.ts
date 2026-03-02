@@ -7,14 +7,15 @@ export async function POST(req: Request) {
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
-      return NextResponse.json({ error: "API Key missing" }, { status: 500 });
+      console.error("API Key is missing in Environment Variables");
+      return NextResponse.json({ error: "Configuration Error" }, { status: 500 });
     }
 
     const { message } = await req.json();
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // שינוי השם ל-flash-latest פותר את שגיאת ה-404 מהלוגים שלך
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // מעבר למודל PRO היציב ביותר כדי לפתור את שגיאת ה-404
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     const prompt = `
       אתה "המארח הדיגיטלי" של מותג הנופש 'בין אומנות לטבע'. 
@@ -29,7 +30,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ text });
   } catch (error: any) {
-    console.error("Internal Error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    console.error("Detailed Error:", error);
+    // החזרת הודעת שגיאה מפורטת שתעזור לנו אם זה שוב יפול
+    return NextResponse.json({ 
+      error: "Gemini API Error", 
+      details: error.message 
+    }, { status: 500 });
   }
 }
