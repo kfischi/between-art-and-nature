@@ -6,34 +6,26 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: Request) {
   try {
-    const { message, history } = await req.json();
+    const { message } = await req.json();
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const systemInstruction = `
-      אתה "המארח הדיגיטלי" של מותג 'בין אומנות לטבע'. 
-      תפקידך: יועץ נופש פרימיום. 
-      נתוני המתחמים: ${JSON.stringify(complexesData.complexes)}
+    const prompt = `
+      אתה "המארח הדיגיטלי" של מותג הנופש 'בין אומנות לטבע'. 
+      הנתונים שלך על המתחמים: ${JSON.stringify(complexesData.complexes)}
       
       הנחיות:
-      1. ענה בעברית רהוטה, שיווקית ומזמינה.
+      1. ענה בעברית חמה, יוקרתית ושיווקית.
       2. אם לקוח מחפש המלצה, שאל על כמות אנשים וסוג האירוע.
-      3. הצג יתרונות רגשיים (שקט, נוף, קמין) ולא רק נתונים יבשים.
-      4. בסיום תשובה רלוונטית, הצע לעבור ל-WhatsApp לסגירה.
+      3. בסוף כל תשובה רלוונטית, הצע לעבור ל-WhatsApp לסגירה מהירה.
+      
+      הודעת הגולש: ${message}
     `;
 
-    const chat = model.startChat({
-      history: [
-        { role: "user", parts: [{ text: systemInstruction }] },
-        { role: "model", parts: [{ text: "הבנתי. אני מוכן לארח את הגולשים של 'בין אומנות לטבע' ולהציע להם את החופשה המושלמת." }] },
-        ...history
-      ],
-    });
-
-    const result = await chat.sendMessage(message);
+    const result = await model.generateContent(prompt);
     const response = await result.response;
-    
     return NextResponse.json({ text: response.text() });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to connect to Gemini" }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ error: "API connection failed" }, { status: 500 });
   }
 }
