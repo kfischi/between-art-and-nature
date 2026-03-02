@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-export const runtime = 'nodejs';
+// Netlify דורש edge runtime עבור API routes
+export const runtime = 'edge';
 
 const SYSTEM_PROMPT = `את מנהלת ההזמנות של "בין אומנות לטבע" — רשת מתחמי נופש יוקרתיים בגליל.
 שמך הוא נועה. את חמה, מקצועית, ועונה תמיד בעברית בלבד.
@@ -51,14 +52,12 @@ export async function POST(req: Request) {
     const { message, history = [] } = body;
 
     if (!message?.trim()) {
-      return NextResponse.json({ text: "לא הבנתי — נסו לנסח מחדש 😊" });
+      return NextResponse.json({ text: "לא הבנתי — נסו לנסח מחדש" });
     }
 
-    // history מגיע בפורמט Gemini: [{ role, parts: [{ text }] }]
-    // מוסיפים system prompt כ-turn ראשון
     const contents = [
       { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
-      { role: 'model', parts: [{ text: 'מובן, אני נועה ואני כאן לעזור למצוא את המתחם המושלם.' }] },
+      { role: 'model', parts: [{ text: 'מובן, אני נועה ואני כאן לעזור.' }] },
       ...history,
       { role: 'user', parts: [{ text: message }] }
     ];
@@ -80,15 +79,18 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini error:', JSON.stringify(data.error));
-      return NextResponse.json({ text: "הייתה תקלה זמנית. נסו שוב או פנו ב-WhatsApp 🙏" });
+      // מחזיר את שגיאת גוגל המדויקת לדיבאג
+      return NextResponse.json({ 
+        text: `שגיאה מגוגל: ${data.error?.message || 'תקלה לא ידועה'}` 
+      });
     }
 
     const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "לא הצלחתי לעבד. נסו שוב.";
     return NextResponse.json({ text: aiText });
 
   } catch (error) {
-    console.error('Chat route error:', error);
-    return NextResponse.json({ text: "תקלה טכנית. פנו ב-WhatsApp: wa.me/972523983394" });
+    return NextResponse.json({ 
+      text: `תקלה טכנית: ${error instanceof Error ? error.message : 'unknown error'}` 
+    });
   }
 }
