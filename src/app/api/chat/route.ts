@@ -1,45 +1,36 @@
-import complexesData from '@/data/content.json';
 import { NextResponse } from "next/server";
+
+export const runtime = 'edge'; 
 
 export async function POST(req: Request) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "API Key missing" }, { status: 500 });
-    }
-
     const { message } = await req.json();
 
-    // פנייה ישירה ל-API של גוגל ללא תלות בספריות חיצוניות
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `אתה המארח הדיגיטלי של 'בין אומנות לטבע'. 
-              הנתונים על המתחמים: ${JSON.stringify(complexesData.complexes)}
-              הנחיות: ענה בעברית שיווקית וחמה. בסיום הצעה למתחם, הצע לעבור ל-WhatsApp.
-              הודעת הגולש: ${message}`
-            }]
-          }]
-        })
-      }
-    );
+    if (!apiKey) {
+      return NextResponse.json({ text: "המפתח חסר בהגדרות נטליפיי. וודא שהגדרת GEMINI_API_KEY." });
+    }
+
+    // פנייה ישירה לכתובת ה-API הרשמית
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: message }] }]
+      })
+    });
 
     const data = await response.json();
 
-    if (data.error) {
-      throw new Error(data.error.message);
+    if (!response.ok) {
+      return NextResponse.json({ text: `שגיאה מגוגל: ${data.error?.message || "תקלה לא ידועה"}` });
     }
 
-    const aiText = data.candidates[0].content.parts[0].text;
-    return NextResponse.json({ text: aiText });
+    return NextResponse.json({ text: data.candidates[0].content.parts[0].text });
 
   } catch (error: any) {
-    console.error("API Error:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ text: "תקלה טכנית בחיבור. נסה שוב בעוד רגע." });
   }
 }
