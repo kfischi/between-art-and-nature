@@ -5,81 +5,162 @@ import { motion, AnimatePresence } from 'framer-motion';
 type Message = { role: 'user' | 'model'; content: string };
 
 const F = "'Frank Ruhl Libre', Georgia, serif";
+const ACCENT = '#7A9E5F';
+const DARK = '#2C2825';
+const CREAM = '#FAF8F4';
 
-// SVG Icons — no emoji
+// ── SVG Icons ─────────────────────────────────
 const SendIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 19V5M5 12l7-7 7 7" />
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
   </svg>
 );
-
 const CloseIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-    <path d="M18 6L6 18M6 6l12 12" />
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <path d="M18 6L6 18M6 6l12 12"/>
+  </svg>
+);
+const ChatBubbleIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15c0 1.1-.9 2-2 2H7l-4 4V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v10z"/>
+    <path d="M8 10h8M8 13h5" opacity=".4"/>
+  </svg>
+);
+const WhatsAppIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
   </svg>
 );
 
-const ChatOpenIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" />
-  </svg>
-);
+// Option chip icon map — maps Hebrew keywords to icons
+const OPTION_ICONS: Record<string, string> = {
+  'להזמין': '🏡', 'הזמינו': '🏡', 'מתחם': '🏡',
+  'טיול': '🥾', 'מסלול': '🥾',
+  'מסעדות': '🍽️', 'אוכל': '🍽️', 'מסעדה': '🍽️',
+  'ילדים': '👶', 'ילד': '👶',
+  'קפה': '☕', 'עגלות': '☕',
+  'מזג': '🌤️', 'אוויר': '🌤️',
+  'אטרקציות': '✨', 'אטרקציה': '✨',
+  'וואטסאפ': '💬', 'WhatsApp': '💬', 'שלחו': '💬',
+  'שבת חתן': '💍', 'חתן': '💍',
+  'זוגי': '💑', 'זוגות': '💑',
+  'משפח': '👨‍👩‍👧',
+  'גיבוש': '🤝', 'אירוע': '🎉',
+  'קל': '🟢', 'בינוני': '🟡', 'מאתגר': '🔴',
+  'היסטוריה': '🏛️', 'תרבות': '🎨',
+  'יין': '🍷',
+};
 
+function getOptionIcon(opt: string): string {
+  for (const [key, icon] of Object.entries(OPTION_ICONS)) {
+    if (opt.includes(key)) return icon + ' ';
+  }
+  return '';
+}
+
+// Typing dots
 const TypingDots = () => (
-  <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '4px 2px' }}>
-    {[0, 1, 2].map(i => (
+  <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '2px 0' }}>
+    {[0,1,2].map(i => (
       <span key={i} style={{
-        width: 5, height: 5, borderRadius: '50%',
-        background: 'rgba(122,158,95,.6)',
-        animation: 'chatDot .9s ease infinite',
-        animationDelay: `${i * 0.2}s`,
+        width: 5, height: 5, borderRadius: '50%', background: `rgba(122,158,95,.7)`,
+        animation: 'chatDot .9s ease infinite', animationDelay: `${i * 0.2}s`,
         display: 'inline-block',
-      }} />
+      }}/>
     ))}
   </div>
 );
 
+// Pulsing FAB
+const PulsingFAB = ({ isOpen, hasNew }: { isOpen: boolean; hasNew: boolean }) => (
+  <div style={{ position: 'relative', width: 58, height: 58 }}>
+    {!isOpen && (
+      <>
+        <span style={{
+          position: 'absolute', inset: -5, borderRadius: '50%',
+          border: `1.5px solid rgba(122,158,95,.45)`,
+          animation: 'chatPulse 2.4s ease-out infinite',
+          pointerEvents: 'none',
+        }}/>
+        <span style={{
+          position: 'absolute', inset: -10, borderRadius: '50%',
+          border: `1px solid rgba(122,158,95,.2)`,
+          animation: 'chatPulse 2.4s ease-out infinite',
+          animationDelay: '.5s',
+          pointerEvents: 'none',
+        }}/>
+      </>
+    )}
+    <div style={{
+      width: 58, height: 58, borderRadius: '50%', background: DARK,
+      border: `1px solid rgba(122,158,95,.35)`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: CREAM, boxShadow: '0 8px 28px rgba(28,26,22,.3)',
+      position: 'relative', zIndex: 1,
+    }}>
+      <AnimatePresence mode="wait">
+        {isOpen
+          ? <motion.span key="x" initial={{rotate:-90,opacity:0}} animate={{rotate:0,opacity:1}} exit={{rotate:90,opacity:0}} transition={{duration:.15}}><CloseIcon/></motion.span>
+          : <motion.span key="c" initial={{rotate:90,opacity:0}} animate={{rotate:0,opacity:1}} exit={{rotate:-90,opacity:0}} transition={{duration:.15}}><ChatBubbleIcon/></motion.span>
+        }
+      </AnimatePresence>
+    </div>
+    {hasNew && !isOpen && (
+      <motion.span initial={{scale:0}} animate={{scale:1}}
+        style={{
+          position: 'absolute', top: 2, right: 2, zIndex: 2,
+          width: 12, height: 12, borderRadius: '50%',
+          background: ACCENT, border: `2px solid ${DARK}`,
+        }}
+      />
+    )}
+  </div>
+);
+
+// ── Main ───────────────────────────────────────
 export default function AiChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [chat, setChat] = useState<Message[]>([
-    {
-      role: 'model',
-      content: 'שלום! אני נועה, מנהלת ההזמנות של בין אומנות לטבע.\nאשמח לעזור לכם למצוא את המתחם המושלם בגליל — זוגות, משפחות, שבת חתן, ויותר.\nמה אתם מחפשים?'
-    }
+  const [chat, setChat] = useState<Message[]>([{
+    role: 'model',
+    content: 'שלום! אני נועה 🌿\nמדריכת הגליל ומנהלת ההזמנות של בין אומנות לטבע.\n\nמה מביא אתכם לצפון?'
+  }]);
+  const [options, setOptions] = useState<string[]>([
+    'אני רוצה להזמין מתחם',
+    'ספרי לי על הגליל',
+    'מה לעשות עם ילדים?',
+    'מזג אוויר עכשיו',
   ]);
   const [loading, setLoading] = useState(false);
-  const [hasNew, setHasNew] = useState(false);
+  const [hasNew, setHasNew] = useState(true);
+  const [whatsappSummary, setWhatsappSummary] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chat, loading]);
+  }, [chat, loading, options]);
 
   useEffect(() => {
-    if (isOpen) {
-      setHasNew(false);
-      setTimeout(() => inputRef.current?.focus(), 300);
-    }
+    if (isOpen) { setHasNew(false); setTimeout(() => inputRef.current?.focus(), 300); }
   }, [isOpen]);
 
-  const sendMessage = async () => {
-    if (!message.trim() || loading) return;
-    const text = message.trim();
+  const send = async (text: string) => {
+    if (!text.trim() || loading) return;
     setLoading(true);
+    setOptions([]);
+    setWhatsappSummary(null);
+
+    const userMsg: Message = { role: 'user', content: text };
+    const newChat = [...chat, userMsg];
+    setChat(newChat);
     setMessage('');
 
-    const newChat: Message[] = [...chat, { role: 'user', content: text }];
-    setChat(newChat);
-
-    // history in Gemini format (excluding opening model message)
-    const history = newChat.slice(1).map(c => ({
+    // Build history (skip opening greeting, skip new user msg)
+    const history = newChat.slice(1, -1).map(c => ({
       role: c.role,
       parts: [{ text: c.content }]
     }));
-    // remove last user message from history (it goes as `message`)
-    history.pop();
 
     try {
       const res = await fetch('/api/chat', {
@@ -88,123 +169,112 @@ export default function AiChat() {
         body: JSON.stringify({ message: text, history }),
       });
       const data = await res.json();
-      const reply = data.text || 'מתנצלת, נתקלתי בקושי קטן. אפשר לנסות שוב?';
-      setChat(prev => [...prev, { role: 'model', content: reply }]);
+      setChat(prev => [...prev, { role: 'model', content: data.text || 'מתנצלת, נסו שוב.' }]);
+      setOptions(data.options || []);
+      if (data.whatsappSummary) setWhatsappSummary(data.whatsappSummary);
       if (!isOpen) setHasNew(true);
     } catch {
-      setChat(prev => [...prev, { role: 'model', content: 'בעיית תקשורת זמנית. נסו שוב בעוד רגע.' }]);
+      setChat(prev => [...prev, { role: 'model', content: 'בעיית תקשורת. נסו שוב.' }]);
+      setOptions(['נסו שוב', 'פנו ב-WhatsApp']);
     }
     setLoading(false);
   };
 
-  const ACCENT = '#7A9E5F';
-  const DARK = '#2C2825';
+  const openWhatsApp = () => {
+    if (!whatsappSummary) return;
+    const msg = encodeURIComponent(`שלום נועה, אני מעוניין/ת בהזמנה:\n${whatsappSummary}`);
+    window.open(`https://wa.me/972523983394?text=${msg}`, '_blank');
+  };
 
   return (
     <div style={{ position: 'fixed', bottom: '1.5rem', left: '1.5rem', zIndex: 9999, direction: 'rtl' }}>
       <style>{`
-        @keyframes chatDot { 0%,100%{opacity:.25;transform:scale(.8)} 50%{opacity:1;transform:scale(1.1)} }
-        @keyframes chatIn { from{opacity:0;transform:translateY(12px) scale(.97)} to{opacity:1;transform:none} }
-        .chat-msg { animation: chatIn .25s ease; }
-        .chat-input::placeholder { color: rgba(44,40,37,.35); }
-        .chat-input:focus { outline: none; box-shadow: 0 0 0 1px ${ACCENT}55; }
-        .chat-scroll::-webkit-scrollbar { width: 3px; }
-        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: rgba(122,158,95,.2); border-radius: 10px; }
+        @keyframes chatDot{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+        @keyframes chatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        @keyframes chatPulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.8);opacity:0}}
+        .cmsg{animation:chatIn .22s ease}
+        .ci:focus{outline:none!important;border-color:rgba(122,158,95,.5)!important;box-shadow:0 0 0 3px rgba(122,158,95,.1)!important}
+        .cs::-webkit-scrollbar{width:3px}
+        .cs::-webkit-scrollbar-thumb{background:rgba(122,158,95,.2);border-radius:10px}
+        .copt:hover{background:rgba(122,158,95,.12)!important;border-color:rgba(122,158,95,.55)!important;transform:translateY(-1px)}
+        .cwa:hover{background:#1da851!important;transform:translateY(-1px)}
       `}</style>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 16, scale: 0.96 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.22, ease: [0.16,1,0.3,1] }}
             style={{
               marginBottom: '1rem',
-              width: 'min(380px, calc(100vw - 3rem))',
-              height: 520,
-              background: 'rgba(250,248,244,.97)',
-              backdropFilter: 'blur(20px)',
+              width: 'min(400px, calc(100vw - 3rem))',
+              height: 580,
+              background: 'rgba(250,248,244,.98)',
+              backdropFilter: 'blur(24px)',
               border: '1px solid rgba(122,158,95,.18)',
-              borderRadius: 20,
-              boxShadow: '0 24px 60px rgba(28,26,22,.18), 0 4px 16px rgba(28,26,22,.08)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
+              borderRadius: 24,
+              boxShadow: '0 32px 72px rgba(28,26,22,.2), 0 4px 16px rgba(28,26,22,.08)',
+              display: 'flex', flexDirection: 'column', overflow: 'hidden',
             }}
           >
-            {/* Header */}
+            {/* ── Header ─────────────────────────── */}
             <div style={{
-              padding: '1rem 1.2rem',
-              background: DARK,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              borderBottom: `1px solid rgba(122,158,95,.2)`,
+              padding: '1rem 1.2rem', background: DARK,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              flexShrink: 0,
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '.7rem' }}>
-                <div style={{
-                  width: 34, height: 34, borderRadius: '50%',
-                  background: `rgba(122,158,95,.15)`,
-                  border: `1px solid rgba(122,158,95,.3)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: ACCENT,
-                }}>
-                  <ChatOpenIcon />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem' }}>
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%',
+                    background: 'rgba(122,158,95,.15)',
+                    border: '1px solid rgba(122,158,95,.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: ACCENT,
+                  }}>
+                    <ChatBubbleIcon/>
+                  </div>
+                  <span style={{
+                    position: 'absolute', bottom: 1, right: 1,
+                    width: 9, height: 9, borderRadius: '50%',
+                    background: '#4ade80', border: `1.5px solid ${DARK}`,
+                  }}/>
                 </div>
                 <div>
-                  <div style={{ fontFamily: F, fontSize: '1rem', fontWeight: 300, color: '#FAF8F4', lineHeight: 1.2 }}>נועה</div>
-                  <div style={{ fontSize: '.6rem', letterSpacing: '.12em', color: ACCENT }}>מנהלת הזמנות · בין אומנות לטבע</div>
+                  <div style={{ fontFamily: F, fontSize: '1rem', fontWeight: 300, color: CREAM, lineHeight: 1.2 }}>נועה</div>
+                  <div style={{ fontSize: '.58rem', letterSpacing: '.1em', color: ACCENT }}>מדריכת גליל · מנהלת הזמנות</div>
                 </div>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  background: 'rgba(250,248,244,.08)',
-                  border: '1px solid rgba(250,248,244,.1)',
-                  color: 'rgba(250,248,244,.6)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', transition: 'background .2s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(250,248,244,.15)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(250,248,244,.08)')}
-                aria-label="סגור"
-              >
-                <CloseIcon />
+              <button onClick={() => setIsOpen(false)} style={{
+                width: 28, height: 28, borderRadius: '50%',
+                background: 'rgba(250,248,244,.08)', border: '1px solid rgba(250,248,244,.1)',
+                color: 'rgba(250,248,244,.5)', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', cursor: 'pointer',
+              }}>
+                <CloseIcon/>
               </button>
             </div>
 
-            {/* Messages */}
-            <div
-              className="chat-scroll"
-              style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '.75rem' }}
-            >
+            {/* ── Messages ───────────────────────── */}
+            <div className="cs" style={{
+              flex: 1, overflowY: 'auto', padding: '1rem',
+              display: 'flex', flexDirection: 'column', gap: '.6rem',
+              minHeight: 0,
+            }}>
               {chat.map((c, i) => (
-                <div
-                  key={i}
-                  className="chat-msg"
-                  style={{
-                    display: 'flex',
-                    justifyContent: c.role === 'user' ? 'flex-start' : 'flex-end',
-                  }}
-                >
+                <div key={i} className="cmsg"
+                  style={{ display: 'flex', justifyContent: c.role === 'user' ? 'flex-start' : 'flex-end' }}>
                   <div style={{
-                    maxWidth: '82%',
-                    padding: '.7rem 1rem',
-                    borderRadius: c.role === 'user'
-                      ? '16px 16px 16px 4px'
-                      : '16px 16px 4px 16px',
-                    background: c.role === 'user'
-                      ? 'rgba(44,40,37,.07)'
-                      : DARK,
-                    color: c.role === 'user' ? DARK : '#FAF8F4',
-                    fontSize: '.85rem',
-                    lineHeight: 1.65,
-                    whiteSpace: 'pre-line',
-                    boxShadow: c.role === 'model' ? '0 2px 8px rgba(28,26,22,.12)' : 'none',
+                    maxWidth: '86%',
+                    padding: '.65rem .95rem',
+                    borderRadius: c.role === 'user' ? '16px 16px 16px 4px' : '16px 16px 4px 16px',
+                    background: c.role === 'user' ? 'rgba(44,40,37,.07)' : DARK,
+                    color: c.role === 'user' ? DARK : CREAM,
+                    fontSize: '.84rem', lineHeight: 1.7, whiteSpace: 'pre-line',
                     borderLeft: c.role === 'model' ? `2px solid ${ACCENT}` : 'none',
+                    boxShadow: c.role === 'model' ? '0 2px 10px rgba(28,26,22,.12)' : 'none',
                   }}>
                     {c.content}
                   </div>
@@ -214,138 +284,124 @@ export default function AiChat() {
               {loading && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <div style={{
-                    padding: '.6rem 1rem',
-                    borderRadius: '16px 16px 4px 16px',
-                    background: DARK,
-                    borderLeft: `2px solid ${ACCENT}`,
+                    padding: '.55rem .95rem', borderRadius: '16px 16px 4px 16px',
+                    background: DARK, borderLeft: `2px solid ${ACCENT}`,
                   }}>
-                    <TypingDots />
+                    <TypingDots/>
                   </div>
                 </div>
               )}
-              <div ref={bottomRef} />
+
+              {/* ── Option chips ─────────────────── */}
+              {!loading && options.length > 0 && (
+                <div className="cmsg" style={{
+                  display: 'flex', flexWrap: 'wrap', gap: '.4rem',
+                  justifyContent: 'flex-end', marginTop: '.3rem', paddingLeft: '1rem',
+                }}>
+                  {options.map((opt, i) => {
+                    const isWA = opt.includes('וואטסאפ') || opt.includes('WhatsApp') || opt.includes('שלחו');
+                    const icon = getOptionIcon(opt);
+                    return (
+                      <button key={i}
+                        className={isWA ? 'cwa' : 'copt'}
+                        onClick={() => isWA ? openWhatsApp() : send(opt)}
+                        style={{
+                          fontSize: '.76rem', letterSpacing: '.03em',
+                          padding: '.4rem .9rem',
+                          background: isWA ? '#25D366' : 'transparent',
+                          border: isWA ? 'none' : `1px solid rgba(122,158,95,.3)`,
+                          color: isWA ? '#fff' : ACCENT,
+                          borderRadius: 20, cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: '.3rem',
+                          transition: 'all .18s', fontFamily: 'inherit',
+                        }}>
+                        {isWA && <WhatsAppIcon/>}
+                        {icon}{opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div ref={bottomRef}/>
             </div>
 
-            {/* Quick suggestions */}
-            {chat.length === 1 && (
-              <div style={{ padding: '0 1rem .5rem', display: 'flex', gap: '.4rem', flexWrap: 'wrap' }}>
-                {['שבת חתן', 'נופש זוגי', 'משפחה גדולה', 'מה הכי זול?'].map(s => (
-                  <button
-                    key={s}
-                    onClick={() => { setMessage(s); setTimeout(() => sendMessage(), 50); }}
-                    style={{
-                      fontSize: '.65rem', letterSpacing: '.06em',
-                      padding: '.3rem .75rem',
-                      background: 'transparent',
-                      border: `1px solid rgba(122,158,95,.3)`,
-                      color: ACCENT,
-                      borderRadius: 20,
-                      cursor: 'pointer',
-                      transition: 'background .2s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(122,158,95,.08)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Input */}
+            {/* ── Input ──────────────────────────── */}
             <div style={{
-              padding: '.85rem 1rem',
-              borderTop: '1px solid rgba(44,40,37,.08)',
-              background: 'rgba(250,248,244,.8)',
-              display: 'flex',
-              gap: '.5rem',
-              alignItems: 'center',
+              padding: '.8rem 1rem', flexShrink: 0,
+              borderTop: '1px solid rgba(44,40,37,.07)',
+              background: 'rgba(250,248,244,.95)',
+              display: 'flex', gap: '.5rem', alignItems: 'center',
             }}>
               <input
                 ref={inputRef}
-                className="chat-input"
+                className="ci"
                 value={message}
                 onChange={e => setMessage(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-                placeholder="כתבו שאלה..."
+                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send(message)}
+                placeholder="או כתבו בחופשיות..."
                 style={{
-                  flex: 1,
-                  background: 'rgba(44,40,37,.05)',
+                  flex: 1, background: 'rgba(44,40,37,.05)',
                   border: '1px solid rgba(44,40,37,.1)',
-                  borderRadius: 24,
-                  padding: '.6rem 1rem',
-                  fontSize: '.85rem',
-                  color: DARK,
-                  textAlign: 'right',
-                  direction: 'rtl',
-                  transition: 'box-shadow .2s',
+                  borderRadius: 24, padding: '.6rem 1rem',
+                  fontSize: '.84rem', color: DARK,
+                  textAlign: 'right', direction: 'rtl',
+                  transition: 'border-color .2s, box-shadow .2s',
+                  fontFamily: 'inherit',
                 }}
               />
               <button
-                onClick={sendMessage}
+                onClick={() => send(message)}
                 disabled={loading || !message.trim()}
                 style={{
-                  width: 38, height: 38,
-                  borderRadius: '50%',
-                  background: message.trim() && !loading ? DARK : 'rgba(44,40,37,.15)',
-                  color: '#FAF8F4',
-                  border: 'none',
+                  width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                  background: message.trim() && !loading ? DARK : 'rgba(44,40,37,.12)',
+                  color: CREAM, border: 'none',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: message.trim() && !loading ? 'pointer' : 'default',
                   transition: 'background .2s, transform .15s',
-                  flexShrink: 0,
                 }}
-                onMouseEnter={e => { if (message.trim() && !loading) e.currentTarget.style.transform = 'scale(1.08)' }}
+                onMouseEnter={e => { if (message.trim()) e.currentTarget.style.transform = 'scale(1.1)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
-                aria-label="שלח"
               >
-                <SendIcon />
+                <SendIcon/>
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* FAB */}
-      <motion.button
-        onClick={() => setIsOpen(o => !o)}
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.94 }}
-        style={{
-          width: 56, height: 56,
-          borderRadius: '50%',
-          background: DARK,
-          border: `1px solid rgba(122,158,95,.3)`,
-          color: '#FAF8F4',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 8px 24px rgba(28,26,22,.25)',
-          position: 'relative',
-        }}
-        aria-label="פתח צ'אט"
-      >
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.span key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: .15 }}>
-              <CloseIcon />
-            </motion.span>
-          ) : (
-            <motion.span key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: .15 }}>
-              <ChatOpenIcon />
-            </motion.span>
+      {/* ── FAB ──────────────────────────────── */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '.45rem' }}>
+        <AnimatePresence>
+          {!isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 4, scale: .95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: .95 }}
+              style={{
+                background: DARK, color: CREAM,
+                fontSize: '.63rem', letterSpacing: '.1em',
+                padding: '.28rem .8rem', borderRadius: 20,
+                border: '1px solid rgba(122,158,95,.28)',
+                whiteSpace: 'nowrap', pointerEvents: 'none',
+                boxShadow: '0 4px 12px rgba(28,26,22,.15)',
+              }}
+            >
+              שאלו אותי
+            </motion.div>
           )}
         </AnimatePresence>
 
-        {/* notification dot */}
-        {hasNew && (
-          <span style={{
-            position: 'absolute', top: 4, right: 4,
-            width: 10, height: 10, borderRadius: '50%',
-            background: ACCENT,
-            border: '2px solid ' + DARK,
-          }} />
-        )}
-      </motion.button>
+        <motion.button
+          onClick={() => setIsOpen(o => !o)}
+          whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.92 }}
+          style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
+          aria-label="פתח צ'אט"
+        >
+          <PulsingFAB isOpen={isOpen} hasNew={hasNew}/>
+        </motion.button>
+      </div>
     </div>
   );
 }
