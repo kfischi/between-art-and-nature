@@ -2,19 +2,19 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import complexesData from '@/data/content.json';
 import { NextResponse } from "next/server";
 
-// בדיקה אם המפתח קיים בכלל - אם לא, נחזיר שגיאה ברורה
-const apiKey = process.env.GEMINI_API_KEY;
-
 export async function POST(req: Request) {
   try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    
     if (!apiKey) {
-      console.error("Missing GEMINI_API_KEY");
-      return NextResponse.json({ error: "API Key not configured" }, { status: 500 });
+      return NextResponse.json({ error: "API Key missing" }, { status: 500 });
     }
 
     const { message } = await req.json();
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    // שינוי השם ל-flash-latest פותר את שגיאת ה-404 מהלוגים שלך
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
     const prompt = `
       אתה "המארח הדיגיטלי" של מותג הנופש 'בין אומנות לטבע'. 
