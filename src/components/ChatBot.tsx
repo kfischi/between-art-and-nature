@@ -1,307 +1,272 @@
-'use client'
-import { useState, useRef, useEffect } from 'react'
+'use client';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-type Msg = {
-  role: 'user' | 'assistant'
-  content: string
-  options?: string[]
-  whatsappSummary?: string | null
+type Message = { role: 'user' | 'model'; content: string };
+const F = "'Frank Ruhl Libre', Georgia, serif";
+const ACCENT = '#7A9E5F';
+const DARK = '#2C2825';
+const CREAM = '#FAF8F4';
+
+const SendIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 19V5M5 12l7-7 7 7"/>
+  </svg>
+);
+const CloseIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <path d="M18 6L6 18M6 6l12 12"/>
+  </svg>
+);
+const ChatBubbleIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15c0 1.1-.9 2-2 2H7l-4 4V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v10z"/>
+    <path d="M8 10h8M8 13h5" opacity=".4"/>
+  </svg>
+);
+const WhatsAppIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
+const OPTION_ICONS: Record<string, string> = {
+  'להזמין': '🏡', 'הזמינו': '🏡', 'מתחם': '🏡',
+  'טיול': '🥾', 'מסלול': '🥾',
+  'מסעדות': '🍽️', 'אוכל': '🍽️',
+  'ילדים': '👶', 'קפה': '☕', 'עגלות': '☕',
+  'מזג': '🌤️', 'אוויר': '🌤️',
+  'אטרקציות': '✨', 'וואטסאפ': '💬', 'שלחו': '💬',
+  'שבת חתן': '💍', 'זוגי': '💑',
+  'משפח': '👨‍👩‍👧', 'גיבוש': '🤝', 'אירוע': '🎉',
+  'קל': '🟢', 'בינוני': '🟡', 'מאתגר': '🔴',
+  'היסטוריה': '🏛️', 'יין': '🍷',
+};
+function getOptionIcon(opt: string): string {
+  for (const [key, icon] of Object.entries(OPTION_ICONS)) {
+    if (opt.includes(key)) return icon + ' ';
+  }
+  return '';
 }
 
-const WELCOME: Msg = {
-  role: 'assistant',
-  content: 'שלום! אני נועה 🌿 מדריכת הגליל של "בין אומנות לטבע". מה מביא אתכם לגליל?',
-  options: ['אני רוצה להזמין מתחם', 'ספרי לי על הגליל', 'מה לעשות עם ילדים?', 'מזג אוויר עכשיו'],
-}
+const TypingDots = () => (
+  <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '2px 0' }}>
+    {[0,1,2].map(i => (
+      <span key={i} style={{
+        width: 5, height: 5, borderRadius: '50%', background: 'rgba(122,158,95,.7)',
+        animation: 'chatDot .9s ease infinite', animationDelay: `${i * 0.2}s`, display: 'inline-block',
+      }}/>
+    ))}
+  </div>
+);
 
-const WA_NUMBER = '972523983394'
+const PulsingFAB = ({ isOpen, hasNew }: { isOpen: boolean; hasNew: boolean }) => (
+  <div style={{ position: 'relative', width: 58, height: 58 }}>
+    {!isOpen && (
+      <>
+        <span style={{ position: 'absolute', inset: -5, borderRadius: '50%', border: '1.5px solid rgba(122,158,95,.45)', animation: 'chatPulse 2.4s ease-out infinite', pointerEvents: 'none' }}/>
+        <span style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: '1px solid rgba(122,158,95,.2)', animation: 'chatPulse 2.4s ease-out infinite', animationDelay: '.5s', pointerEvents: 'none' }}/>
+      </>
+    )}
+    <div style={{
+      width: 58, height: 58, borderRadius: '50%', background: DARK,
+      border: '1px solid rgba(122,158,95,.35)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: CREAM, boxShadow: '0 8px 28px rgba(28,26,22,.3)', position: 'relative', zIndex: 1,
+    }}>
+      <AnimatePresence mode="wait">
+        {isOpen
+          ? <motion.span key="x" initial={{rotate:-90,opacity:0}} animate={{rotate:0,opacity:1}} exit={{rotate:90,opacity:0}} transition={{duration:.15}}><CloseIcon/></motion.span>
+          : <motion.span key="c" initial={{rotate:90,opacity:0}} animate={{rotate:0,opacity:1}} exit={{rotate:-90,opacity:0}} transition={{duration:.15}}><ChatBubbleIcon/></motion.span>
+        }
+      </AnimatePresence>
+    </div>
+    {hasNew && !isOpen && (
+      <motion.span initial={{scale:0}} animate={{scale:1}} style={{
+        position: 'absolute', top: 2, right: 2, zIndex: 2,
+        width: 12, height: 12, borderRadius: '50%',
+        background: ACCENT, border: `2px solid ${DARK}`,
+      }}/>
+    )}
+  </div>
+);
 
-export default function ChatBot() {
-  const [open, setOpen]     = useState(false)
-  const [msgs, setMsgs]     = useState<Msg[]>([WELCOME])
-  const [input, setInput]   = useState('')
-  const [loading, setLoading] = useState(false)
-  const [pulse, setPulse]   = useState(true)
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const inputRef  = useRef<HTMLInputElement>(null)
+export default function AiChat() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState('');
+  const [chat, setChat] = useState<Message[]>([{
+    role: 'model',
+    content: 'שלום! אני נועה 🌿\nמדריכת הגליל ומנהלת ההזמנות של בין אומנות לטבע.\n\nמה מביא אתכם לצפון?'
+  }]);
+  const [options, setOptions] = useState<string[]>(['אני רוצה להזמין מתחם', 'ספרי לי על הגליל', 'מה לעשות עם ילדים?', 'מזג אוויר עכשיו']);
+  const [loading, setLoading] = useState(false);
+  const [hasNew, setHasNew] = useState(true);
+  const [whatsappSummary, setWhatsappSummary] = useState<string | null>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // history for API — only role+content
-  const history = msgs.map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }))
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chat, loading, options]);
+  useEffect(() => { if (isOpen) { setHasNew(false); setTimeout(() => inputRef.current?.focus(), 300); } }, [isOpen]);
 
-  useEffect(() => { if (open) setPulse(false) }, [open])
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [msgs, loading])
-  useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 350) }, [open])
-  useEffect(() => {
-    const fn = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
-    window.addEventListener('keydown', fn)
-    return () => window.removeEventListener('keydown', fn)
-  }, [])
-
-  async function send(text?: string) {
-    const msg = (text ?? input).trim()
-    if (!msg || loading) return
-    const userMsg: Msg = { role: 'user', content: msg }
-    setMsgs(m => [...m, userMsg])
-    setInput('')
-    setLoading(true)
-
+  const send = async (text: string) => {
+    if (!text.trim() || loading) return;
+    setLoading(true); setOptions([]); setWhatsappSummary(null);
+    const userMsg: Message = { role: 'user', content: text };
+    const newChat = [...chat, userMsg];
+    setChat(newChat); setMessage('');
+    const history = newChat.slice(1, -1).map(c => ({ role: c.role, parts: [{ text: c.content }] }));
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, history }),
-      })
-      const data = await res.json()
-      setMsgs(m => [...m, {
-        role: 'assistant',
-        content: data.text ?? 'מצטערים, נסו שוב.',
-        options: data.options ?? [],
-        whatsappSummary: data.whatsappSummary ?? null,
-      }])
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, history }) });
+      const data = await res.json();
+      setChat(prev => [...prev, { role: 'model', content: data.text || 'מתנצלת, נסו שוב.' }]);
+      setOptions(data.options || []);
+      if (data.whatsappSummary) setWhatsappSummary(data.whatsappSummary);
+      if (!isOpen) setHasNew(true);
     } catch {
-      setMsgs(m => [...m, { role: 'assistant', content: 'תקלה זמנית. נסו שוב.', options: ['נסו שוב'] }])
-    } finally {
-      setLoading(false)
+      setChat(prev => [...prev, { role: 'model', content: 'בעיית תקשורת. נסו שוב.' }]);
+      setOptions(['נסו שוב', 'פנו ב-WhatsApp']);
     }
-  }
+    setLoading(false);
+  };
 
-  function openWhatsApp(summary: string) {
-    const text = encodeURIComponent(`שלום! אני מעוניין/ת לבצע הזמנה:\n${summary}`)
-    window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank')
-  }
+  const openWhatsApp = () => {
+    if (!whatsappSummary) return;
+    window.open(`https://wa.me/972523983394?text=${encodeURIComponent(`שלום נועה, אני מעוניין/ת בהזמנה:\n${whatsappSummary}`)}`, '_blank');
+  };
 
   return (
-    <>
-      {/* ── FAB ── */}
-      <button
-        onClick={() => setOpen(v => !v)}
-        aria-label={open ? 'סגור צ׳אט' : 'פתח צ׳אט עם נועה'}
-        style={{
-          position: 'fixed', bottom: '1.8rem', left: '1.8rem', zIndex: 2000,
-          width: 58, height: 58, borderRadius: '50%',
-          background: open ? 'var(--soil)' : 'var(--leaf)',
-          border: open ? '1px solid rgba(122,158,95,.4)' : 'none',
-          color: 'var(--cream)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 4px 24px rgba(0,0,0,.45)',
-          transition: 'background .3s, transform .2s',
-          transform: open ? 'scale(.92)' : 'scale(1)',
-        }}
-      >
-        {open ? (
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M2 2l14 14M16 2L2 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        ) : (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        )}
-        {pulse && !open && (
-          <span style={{
-            position: 'absolute', inset: -5, borderRadius: '50%',
-            border: '2px solid var(--sage)', animation: 'chatPulse 2s ease infinite',
-            pointerEvents: 'none',
-          }} />
-        )}
-      </button>
+    <div style={{
+      position: 'fixed',
+      bottom: '1.5rem',
+      right: '1.5rem',   /* RIGHT — visible on iOS/Android regardless of RTL overflow */
+      zIndex: 9999,
+      direction: 'rtl',
+    }}>
+      <style>{`
+        @keyframes chatDot{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+        @keyframes chatPulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.8);opacity:0}}
+        .cmsg{animation:chatIn .22s ease}
+        @keyframes chatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        .ci:focus{outline:none!important;border-color:rgba(122,158,95,.5)!important;box-shadow:0 0 0 3px rgba(122,158,95,.1)!important}
+        .cs::-webkit-scrollbar{width:3px}
+        .cs::-webkit-scrollbar-thumb{background:rgba(122,158,95,.2);border-radius:10px}
+        .copt:hover{background:rgba(122,158,95,.12)!important;border-color:rgba(122,158,95,.55)!important}
+        .cwa:hover{background:#1da851!important}
+      `}</style>
 
-      {/* ── Chat window ── */}
-      <div
-        role="dialog"
-        aria-label="צ׳אט עם נועה — מדריכת הגליל"
-        style={{
-          position: 'fixed',
-          bottom: '5.6rem', left: '1.2rem',
-          zIndex: 1999,
-          width: 'min(380px, calc(100vw - 2.4rem))',
-          maxHeight: 'min(560px, calc(100svh - 9rem))',
-          background: 'var(--bark)',
-          border: '1px solid rgba(122,158,95,.18)',
-          borderRadius: '4px',
-          display: 'flex', flexDirection: 'column',
-          overflow: 'hidden',
-          boxShadow: '0 16px 64px rgba(0,0,0,.6)',
-          transform: open ? 'translateY(0) scale(1)' : 'translateY(24px) scale(.95)',
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? 'auto' : 'none',
-          transition: 'transform .35s cubic-bezier(.16,1,.3,1), opacity .3s',
-        }}
-      >
-        {/* Header */}
-        <div style={{
-          padding: '1rem 1.2rem',
-          background: 'var(--log)',
-          borderBottom: '1px solid rgba(122,158,95,.1)',
-          display: 'flex', alignItems: 'center', gap: '.75rem', flexShrink: 0,
-        }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--forest), var(--leaf))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.15rem', flexShrink: 0,
-          }}>🌿</div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '.84rem', fontWeight: 500, color: 'var(--cream)' }}>נועה</div>
-            <div style={{ fontSize: '.64rem', color: 'var(--sage)', display: 'flex', alignItems: 'center', gap: '.35rem' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-              מדריכת גליל ומנהלת הזמנות
-            </div>
-          </div>
-          <button onClick={() => setOpen(false)} aria-label="סגור"
-            style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 4 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            </svg>
-          </button>
-        </div>
-
-        {/* Messages */}
-        <div style={{
-          flex: 1, overflowY: 'auto', padding: '1rem',
-          display: 'flex', flexDirection: 'column', gap: '.8rem',
-          scrollbarWidth: 'none',
-        }}>
-          <style>{`
-            @keyframes chatPulse { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.3);opacity:0} }
-            @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
-          `}</style>
-
-          {msgs.map((m, i) => (
-            <div key={i} style={{ animation: 'msgIn .28s ease' }}>
-              {/* Bubble */}
-              <div style={{
-                display: 'flex',
-                justifyContent: m.role === 'user' ? 'flex-start' : 'flex-end',
-              }}>
-                <div style={{
-                  maxWidth: '86%',
-                  padding: '.7rem 1rem',
-                  borderRadius: m.role === 'user' ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                  background: m.role === 'user' ? 'rgba(122,158,95,.2)' : 'var(--log)',
-                  border: m.role === 'user' ? '1px solid rgba(122,158,95,.3)' : '1px solid rgba(242,237,227,.07)',
-                  fontSize: '.82rem', lineHeight: 1.65,
-                  color: m.role === 'user' ? 'var(--cream)' : 'rgba(242,237,227,.88)',
-                  direction: 'rtl', textAlign: 'right',
-                  whiteSpace: 'pre-wrap',
-                }}>
-                  {m.content}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.22, ease: [0.16,1,0.3,1] }}
+            style={{
+              marginBottom: '1rem',
+              width: 'min(400px, calc(100vw - 3rem))',
+              maxHeight: 'min(580px, calc(100svh - 9rem))',
+              background: 'rgba(250,248,244,.98)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(122,158,95,.18)',
+              borderRadius: 24,
+              boxShadow: '0 32px 72px rgba(28,26,22,.2), 0 4px 16px rgba(28,26,22,.08)',
+              display: 'flex', flexDirection: 'column', overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <div style={{ padding: '1rem 1.2rem', background: DARK, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '.8rem' }}>
+                <div style={{ position: 'relative' }}>
+                  <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(122,158,95,.15)', border: '1px solid rgba(122,158,95,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: ACCENT }}>
+                    <ChatBubbleIcon/>
+                  </div>
+                  <span style={{ position: 'absolute', bottom: 1, right: 1, width: 9, height: 9, borderRadius: '50%', background: '#4ade80', border: `1.5px solid ${DARK}` }}/>
+                </div>
+                <div>
+                  <div style={{ fontFamily: F, fontSize: '1rem', fontWeight: 300, color: CREAM, lineHeight: 1.2 }}>נועה</div>
+                  <div style={{ fontSize: '.58rem', letterSpacing: '.1em', color: ACCENT }}>מדריכת גליל · מנהלת הזמנות</div>
                 </div>
               </div>
+              <button onClick={() => setIsOpen(false)} style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(250,248,244,.08)', border: '1px solid rgba(250,248,244,.1)', color: 'rgba(250,248,244,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <CloseIcon/>
+              </button>
+            </div>
 
-              {/* WhatsApp summary button */}
-              {m.whatsappSummary && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '.5rem' }}>
-                  <button
-                    onClick={() => openWhatsApp(m.whatsappSummary!)}
-                    style={{
-                      background: '#25D366', color: '#fff',
-                      border: 'none', borderRadius: '8px',
-                      padding: '.65rem 1.2rem', fontSize: '.78rem', letterSpacing: '.04em',
-                      cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '.4rem',
-                      fontFamily: "'Heebo', sans-serif",
-                    }}>
-                    💬 שליחה לוואטסאפ
+            {/* Messages */}
+            <div className="cs" style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '.6rem', minHeight: 0 }}>
+              {chat.map((c, i) => (
+                <div key={i} className="cmsg" style={{ display: 'flex', justifyContent: c.role === 'user' ? 'flex-start' : 'flex-end' }}>
+                  <div style={{
+                    maxWidth: '86%', padding: '.65rem .95rem',
+                    borderRadius: c.role === 'user' ? '16px 16px 16px 4px' : '16px 16px 4px 16px',
+                    background: c.role === 'user' ? 'rgba(44,40,37,.07)' : DARK,
+                    color: c.role === 'user' ? DARK : CREAM,
+                    fontSize: '.84rem', lineHeight: 1.7, whiteSpace: 'pre-line',
+                    borderLeft: c.role === 'model' ? `2px solid ${ACCENT}` : 'none',
+                  }}>
+                    {c.content}
+                  </div>
+                </div>
+              ))}
+
+              {loading && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <div style={{ padding: '.55rem .95rem', borderRadius: '16px 16px 4px 16px', background: DARK, borderLeft: `2px solid ${ACCENT}` }}>
+                    <TypingDots/>
+                  </div>
+                </div>
+              )}
+
+              {whatsappSummary && !loading && (
+                <div className="cmsg" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <button className="cwa" onClick={openWhatsApp} style={{ background: '#25D366', color: '#fff', border: 'none', borderRadius: 20, padding: '.5rem 1.1rem', fontSize: '.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '.4rem', fontFamily: 'inherit', transition: 'background .18s' }}>
+                    <WhatsAppIcon/> שלחו לוואטסאפ עכשיו
                   </button>
                 </div>
               )}
 
-              {/* Options chips */}
-              {m.options && m.options.length > 0 && (
-                <div style={{
-                  display: 'flex', gap: '.4rem', flexWrap: 'wrap',
-                  marginTop: '.5rem',
-                  justifyContent: 'flex-end',
-                }}>
-                  {m.options.map((opt, j) => (
-                    <button key={j}
-                      onClick={() => send(opt)}
-                      disabled={loading}
-                      style={{
-                        fontSize: '.68rem', letterSpacing: '.03em',
-                        padding: '.32rem .8rem', borderRadius: 20,
-                        background: 'rgba(122,158,95,.12)',
-                        border: '1px solid rgba(122,158,95,.3)',
-                        color: 'var(--sage)', cursor: 'pointer',
-                        transition: 'background .2s',
-                        fontFamily: "'Heebo', sans-serif",
-                        direction: 'rtl',
-                        opacity: loading ? .5 : 1,
-                      }}>
-                      {opt}
-                    </button>
-                  ))}
+              {!loading && options.length > 0 && (
+                <div className="cmsg" style={{ display: 'flex', flexWrap: 'wrap', gap: '.4rem', justifyContent: 'flex-end', marginTop: '.3rem', paddingLeft: '1rem' }}>
+                  {options.map((opt, i) => {
+                    const isWA = opt.includes('וואטסאפ') || opt.includes('WhatsApp') || opt.includes('שלחו');
+                    return (
+                      <button key={i} className={isWA ? 'cwa' : 'copt'}
+                        onClick={() => isWA ? openWhatsApp() : send(opt)}
+                        style={{ fontSize: '.76rem', letterSpacing: '.03em', padding: '.4rem .9rem', background: isWA ? '#25D366' : 'transparent', border: isWA ? 'none' : '1px solid rgba(122,158,95,.3)', color: isWA ? '#fff' : ACCENT, borderRadius: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '.3rem', transition: 'all .18s', fontFamily: 'inherit' }}>
+                        {isWA && <WhatsAppIcon/>}{getOptionIcon(opt)}{opt}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
+              <div ref={bottomRef}/>
             </div>
-          ))}
 
-          {/* Typing indicator */}
-          {loading && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <div style={{
-                padding: '.65rem 1rem', borderRadius: '14px 14px 14px 4px',
-                background: 'var(--log)', border: '1px solid rgba(242,237,227,.07)',
-                display: 'flex', gap: 5, alignItems: 'center',
-              }}>
-                {[0, 1, 2].map(i => (
-                  <span key={i} style={{
-                    width: 6, height: 6, borderRadius: '50%', background: 'var(--sage)',
-                    display: 'inline-block',
-                    animation: `chatPulse 1.2s ease ${i * .2}s infinite`,
-                  }} />
-                ))}
-              </div>
+            {/* Input */}
+            <div style={{ padding: '.8rem 1rem', flexShrink: 0, borderTop: '1px solid rgba(44,40,37,.07)', background: 'rgba(250,248,244,.95)', display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+              <input ref={inputRef} className="ci" value={message} onChange={e => setMessage(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send(message)} placeholder="או כתבו בחופשיות..." style={{ flex: 1, background: 'rgba(44,40,37,.05)', border: '1px solid rgba(44,40,37,.1)', borderRadius: 24, padding: '.6rem 1rem', fontSize: '.84rem', color: DARK, textAlign: 'right', direction: 'rtl', transition: 'border-color .2s, box-shadow .2s', fontFamily: 'inherit' }}/>
+              <button onClick={() => send(message)} disabled={loading || !message.trim()} style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0, background: message.trim() && !loading ? DARK : 'rgba(44,40,37,.12)', color: CREAM, border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: message.trim() && !loading ? 'pointer' : 'default', transition: 'background .2s' }}>
+                <SendIcon/>
+              </button>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* FAB */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '.45rem' }}>
+        <AnimatePresence>
+          {!isOpen && (
+            <motion.div initial={{ opacity: 0, y: 4, scale: .95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 4, scale: .95 }}
+              style={{ background: DARK, color: CREAM, fontSize: '.63rem', letterSpacing: '.1em', padding: '.28rem .8rem', borderRadius: 20, border: '1px solid rgba(122,158,95,.28)', whiteSpace: 'nowrap', pointerEvents: 'none', boxShadow: '0 4px 12px rgba(28,26,22,.15)' }}>
+              שאלו אותי
+            </motion.div>
           )}
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Input */}
-        <div style={{
-          padding: '.75rem 1rem',
-          borderTop: '1px solid rgba(122,158,95,.1)',
-          display: 'flex', gap: '.5rem', flexShrink: 0,
-          background: 'var(--log)',
-        }}>
-          <input
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && send()}
-            placeholder="כתבו שאלה חופשית..."
-            dir="rtl"
-            style={{
-              flex: 1, background: 'rgba(242,237,227,.05)',
-              border: '1px solid rgba(242,237,227,.12)',
-              color: 'var(--cream)', padding: '.6rem .9rem',
-              borderRadius: '4px', fontSize: '.82rem',
-              outline: 'none', fontFamily: "'Heebo', sans-serif",
-            }}
-          />
-          <button
-            onClick={() => send()}
-            disabled={!input.trim() || loading}
-            aria-label="שלח"
-            style={{
-              width: 40, height: 40, borderRadius: '4px', flexShrink: 0,
-              background: input.trim() && !loading ? 'var(--leaf)' : 'rgba(122,158,95,.2)',
-              border: 'none', color: 'var(--cream)',
-              cursor: input.trim() && !loading ? 'pointer' : 'default',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background .2s',
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ transform: 'scaleX(-1)' }}>
-              <path d="M14 8H2M7 3l-5 5 5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
+        </AnimatePresence>
+        <motion.button onClick={() => setIsOpen(o => !o)} whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.92 }} style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }} aria-label="פתח צ'אט">
+          <PulsingFAB isOpen={isOpen} hasNew={hasNew}/>
+        </motion.button>
       </div>
-    </>
-  )
+    </div>
+  );
 }
