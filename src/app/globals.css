@@ -1,50 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&family=Heebo:wght@200;300;400;500&display=swap');
-@import "tailwindcss";
+import { Metadata } from 'next'
+import { getLocation } from '@/lib/locations'
+import PropertyPage from '@/components/PropertyPage'
 
-:root {
-  --soil:     #1C1A16;
-  --bark:     #252019;
-  --log:      #2E2820;
-  --forest:   #2D5016;
-  --leaf:     #4A7C2F;
-  --sage:     #7A9E5F;
-  --fern:     #A8C278;
-  --sky:      #4A7FA5;
-  --sky-lt:   #7BAECB;
-  --terra:    #B5602A;
-  --terra-lt: #D4865A;
-  --cream:    #F2EDE3;
-  --sand:     #D9C9A8;
-  --muted:    rgba(242,237,227,0.55);
-  --dim:      rgba(242,237,227,0.1);
-  --ease:     cubic-bezier(0.16,1,0.3,1);
+export async function generateMetadata(): Promise<Metadata> {
+  const loc = getLocation('tzuriel')!
+  return {
+    title: `${loc.name} — בין אומנות לטבע`,
+    description: loc.description,
+    keywords: loc.seoKeywords.join(', '),
+    openGraph: {
+      title: loc.name,
+      description: loc.description,
+      images: [{ url: loc.imageFeatured || loc.image, width: 1200, height: 630 }],
+      locale: 'he_IL',
+      type: 'website',
+    },
+    alternates: { canonical: `https://between-art-and-nature.netlify.app/tzuriel` },
+  }
 }
 
-html { scroll-behavior: smooth; direction: rtl; }
-
-body {
-  background: var(--soil);
-  color: var(--cream);
-  font-weight: 300;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-  font-family: 'Heebo', sans-serif;
+export default function Page() {
+  const loc = getLocation('tzuriel')!
+  return <PropertyPage loc={loc} />
 }
-
-.rv {
-  opacity: 0;
-  transform: translateY(44px);
-  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
-}
-.rv.in { opacity: 1; transform: none; }
-.d1 { transition-delay: 0.10s; }
-.d2 { transition-delay: 0.22s; }
-.d3 { transition-delay: 0.34s; }
-.d4 { transition-delay: 0.46s; }
-
-.clip-r { clip-path: inset(100% 0 0 0); transition: clip-path 1.2s var(--ease); }
-.clip-r.in { clip-path: inset(0 0 0 0); }
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--soil); }
-::-webkit-scrollbar-thumb { background: var(--sage); border-radius: 2px; }
