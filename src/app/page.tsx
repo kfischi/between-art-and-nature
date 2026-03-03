@@ -35,7 +35,7 @@ export default function HomePage() {
           {[...Array(2)].flatMap(() => [
             { text: 'אחוזת קלמנטין', color: 'var(--sage)' },
             { text: 'אחוזה בגליל', color: 'var(--sky)' },
-            { text: 'מתחם גרנות', color: 'var(--terra)' },
+            { text: 'מתחם צוריאל', color: 'var(--terra)' },
             { text: 'כפר פקיעין', color: 'var(--fern)' },
             { text: 'נוף גלילי', color: 'var(--leaf)' },
             { text: 'ג׳קוזי פרטי', color: 'var(--sky-lt)' },
@@ -58,7 +58,7 @@ export default function HomePage() {
       </div>
 
       {/* LOCATIONS */}
-      <section id="locations" style={{ padding: '8rem 4rem', background: 'var(--soil)' }}>
+      <section id="locations" className='locations-section' style={{ background: 'var(--soil)' }}>
         <ScrollReveal style={{ marginBottom: '3rem' }}>
           <div style={{ fontSize: '.62rem', letterSpacing: '.28em', color: 'var(--sage)', display: 'flex', alignItems: 'center', gap: '.7rem', marginBottom: '.7rem' }}>
             המתחמים
@@ -73,7 +73,7 @@ export default function HomePage() {
           <FeaturedLocationCard loc={featured} />
         </ScrollReveal>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, marginTop: 2 }}>
+        <div className="locations-grid">
           {grid.map((loc, i) => (
             <ScrollReveal key={loc.slug} delay={i * 0.1}>
               <GridLocationCard loc={loc} />
@@ -93,7 +93,7 @@ export default function HomePage() {
       </section>
 
       {/* NATURE BRAND SPLIT */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '80vh', overflow: 'hidden' }}>
+      <div className="nature-split">
         <div style={{ position: 'relative', overflow: 'hidden' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -108,7 +108,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div style={{ background: 'var(--leaf)', padding: '5rem 4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ background: 'var(--leaf)', padding: 'var(--py) var(--px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <ScrollReveal>
             <div style={{ fontSize: '.62rem', letterSpacing: '.28em', color: 'var(--fern)', display: 'flex', alignItems: 'center', gap: '.7rem', marginBottom: '1rem' }}>
               הרשת שלנו <span style={{ width: 22, height: 1, background: 'var(--fern)' }} />
@@ -157,7 +157,7 @@ export default function HomePage() {
       </div>
 
       {/* EXPERIENCES */}
-      <section id="exp" style={{ padding: '8rem 4rem', background: 'var(--bark)' }}>
+      <section id="exp" className='exp-section' style={{ background: 'var(--bark)' }}>
         <div style={{ marginBottom: '4rem' }}>
           <ScrollReveal>
             <div style={{ fontSize: '.62rem', letterSpacing: '.28em', color: 'var(--sage)', display: 'flex', alignItems: 'center', gap: '.7rem', marginBottom: '.7rem' }}>
@@ -169,11 +169,11 @@ export default function HomePage() {
           </ScrollReveal>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
+        <div className="exp-grid">
           {[
             { icon: '💑', title: 'סוף שבוע זוגי', desc: 'ג׳קוזי פרטי מול הנוף, קמין בוער, פרטיות מוחלטת.', img: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=700&q=75&auto=format&fit=crop', tags: ['אחוזה בגליל', 'אחוזת קלמנטין'], color1: 'var(--sky)', color2: 'var(--sage)' },
-            { icon: '👨‍👩‍👧‍👦', title: 'חופשה משפחתית', desc: 'בריכה מגודרת, חצר ענקית, גריל ושקט.', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=700&q=75&auto=format&fit=crop', tags: ['אחוזת קלמנטין', 'גרנות'], color1: 'var(--leaf)', color2: 'var(--fern)' },
-            { icon: '✡️', title: 'שבת חתן', desc: 'הפרדה מלאה, כשרות, לוגיסטיקה מושלמת.', img: 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=700&q=75&auto=format&fit=crop', tags: ['אחוזת קלמנטין', 'גרנות'], color1: 'var(--terra)', color2: 'var(--terra-lt)' },
+            { icon: '👨‍👩‍👧‍👦', title: 'חופשה משפחתית', desc: 'בריכה מגודרת, חצר ענקית, גריל ושקט.', img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=700&q=75&auto=format&fit=crop', tags: ['אחוזת קלמנטין', 'צוריאל'], color1: 'var(--leaf)', color2: 'var(--fern)' },
+            { icon: '✡️', title: 'שבת חתן', desc: 'הפרדה מלאה, כשרות, לוגיסטיקה מושלמת.', img: 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=700&q=75&auto=format&fit=crop', tags: ['אחוזת קלמנטין', 'צוריאל'], color1: 'var(--terra)', color2: 'var(--terra-lt)' },
             { icon: '🥾', title: 'טבע והרפתקאות', desc: 'רכיבה, ATV, נחל כזיב, יקבי בוטיק.', img: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=700&q=75&auto=format&fit=crop', tags: ['כל המתחמים'], color1: 'var(--forest)', color2: 'var(--leaf)' },
           ].map((exp, i) => (
             <ScrollReveal key={i} delay={i * 0.1}>
@@ -208,8 +208,8 @@ export default function HomePage() {
       </section>
 
       {/* REVIEWS */}
-      <section style={{ padding: '8rem 4rem', background: 'var(--soil)', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '5rem', alignItems: 'start' }}>
-        <div style={{ position: 'sticky', top: '8rem' }}>
+      <section className="reviews-outer">
+        <div className="reviews-sticky">
           <ScrollReveal>
             <div style={{ fontSize: '.62rem', letterSpacing: '.28em', color: 'var(--sage)', display: 'flex', alignItems: 'center', gap: '.7rem', marginBottom: '.7rem' }}>
               ביקורות <span style={{ width: 22, height: 1, background: 'var(--sage)' }} />
@@ -221,11 +221,11 @@ export default function HomePage() {
           </ScrollReveal>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5px' }}>
+        <div className="reviews-grid">
           {[
             { stars: '★★★★★', color: 'var(--sage)', quote: 'החופשה הכי טובה שהיתה לנו מזה שנים. הג׳קוזי מול הנוף בלילה, הקמין, הפרטיות — פשוט קסם.', who: 'דנה וגל כהן', where: 'אחוזה בגליל · ספטמבר 2024' },
             { stars: '★★★★★', color: 'var(--terra-lt)', quote: 'ארגנו שבת חתן ל-45 אורחים. הכל התנהל מושלם — המתחם, השירות, הגמישות.', who: 'משפחת לוי', where: 'אחוזת קלמנטין · יוני 2024' },
-            { stars: '★★★★★', color: 'var(--sky-lt)', quote: 'עם שלושה ילדים קטנים מצאנו מקום שהם היו מאושרים ואנחנו באמת נחנו.', who: 'רחל ואייל ברנע', where: 'מתחם גרנות · אוגוסט 2024' },
+            { stars: '★★★★★', color: 'var(--sky-lt)', quote: 'עם שלושה ילדים קטנים מצאנו מקום שהם היו מאושרים ואנחנו באמת נחנו.', who: 'רחל ואייל ברנע', where: 'מתחם צוריאל · אוגוסט 2024' },
             { stars: '★★★★★', color: 'var(--fern)', quote: 'הכפר, הנוף, האנשים — פקיעין היא חוויה שאי אפשר לשחזר בשום מקום אחר.', who: 'שושי ומשה אברהם', where: 'כפר פקיעין · ספטמבר 2024' },
           ].map((r, i) => (
             <ScrollReveal key={i} delay={i * 0.1}>
