@@ -161,7 +161,7 @@ img { max-width: 100%; display: block; }
   .feat-card-photo { height: 55vw; }
 }
 
-/* Grid cards */
+/* Grid cards — desktop: 3 column grid */
 .locations-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -169,22 +169,54 @@ img { max-width: 100%; display: block; }
   margin-top: 2px;
 }
 
-@media (max-width: 900px) {
-  .locations-grid { grid-template-columns: 1fr 1fr !important; }
-}
-@media (max-width: 600px) {
-  .locations-grid { grid-template-columns: 1fr !important; }
-}
-
 /* Grid card link */
-.grid-card { position: relative; overflow: hidden; display: block; aspect-ratio: 2/3; }
+.grid-card {
+  position: relative; overflow: hidden; display: block; aspect-ratio: 2/3;
+}
 .grid-card-img { transition: transform 1s, filter .6s !important; }
 .grid-card:hover .grid-card-img {
   transform: scale(1.07) !important;
   filter: brightness(.75) saturate(1.3) !important;
 }
-@media (max-width: 600px) {
-  .grid-card { aspect-ratio: 3/4 !important; }
+
+/* ─── MOBILE: horizontal scroll carousel ─── */
+@media (max-width: 768px) {
+  .locations-grid {
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    gap: 12px !important;
+    padding: 0 var(--px) 2rem !important;
+    margin-top: 1.5rem !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .locations-grid::-webkit-scrollbar { display: none; }
+
+  /* Each scroll item wraps the card */
+  .locations-grid > * {
+    flex-shrink: 0 !important;
+    width: 78vw !important;
+    scroll-snap-align: start;
+  }
+
+  .grid-card {
+    aspect-ratio: unset !important;
+    height: 72vw !important;
+    border-radius: 2px;
+  }
+
+  /* Bigger text inside card at mobile */
+  .grid-card [style*="font-size: '1.9rem'"],
+  .grid-card [style*="fontSize: '1.9rem'"] {
+    font-size: clamp(1.5rem, 5vw, 2.2rem) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .locations-grid > * { width: 86vw !important; }
+  .grid-card { height: 80vw !important; }
 }
 
 /* ════════════════════════════════════════════════════
@@ -223,8 +255,26 @@ img { max-width: 100%; display: block; }
 @media (max-width: 900px) {
   .exp-grid { grid-template-columns: 1fr 1fr !important; }
 }
-@media (max-width: 500px) {
-  .exp-grid { grid-template-columns: 1fr !important; }
+
+/* Mobile: horizontal scroll carousel */
+@media (max-width: 640px) {
+  .exp-section { padding-left: 0 !important; padding-right: 0 !important; }
+  .exp-grid {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 10px !important;
+    padding: 0 var(--px) 2rem !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .exp-grid::-webkit-scrollbar { display: none; }
+  .exp-grid > * {
+    flex-shrink: 0 !important;
+    width: 80vw !important;
+    scroll-snap-align: start;
+    min-height: 420px !important;
+  }
 }
 
 /* ════════════════════════════════════════════════════
@@ -254,6 +304,12 @@ img { max-width: 100%; display: block; }
 }
 @media (max-width: 500px) {
   .reviews-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Scroll hint — visible only on mobile */
+.scroll-hint-mobile { display: none; }
+@media (max-width: 768px) {
+  .scroll-hint-mobile { display: flex !important; }
 }
 
 /* ════════════════════════════════════════════════════
@@ -541,4 +597,600 @@ img { max-width: 100%; display: block; }
   .rv { opacity: 1 !important; transform: none !important; }
   .clip-r { clip-path: none !important; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   HERO — MOBILE TYPOGRAPHY
+════════════════════════════════════════════════════ */
+.hero-eyebrow {
+  font-size: clamp(.7rem, 1vw, .72rem);
+  letter-spacing: .22em;
+  color: var(--fern);
+  margin-bottom: clamp(1rem, 2.5vw, 1.6rem);
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  font-weight: 400;
+}
+.hero-h1 {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(4rem, 13vw, 10rem);
+  line-height: .88;
+  letter-spacing: -.01em;
+  margin-bottom: clamp(1.2rem, 3vw, 2rem);
+  margin-top: 0;
+}
+.hero-desc {
+  font-size: clamp(1rem, 1.4vw, 1.05rem);
+  line-height: 1.85;
+  color: var(--muted);
+  max-width: 42ch;
+  margin-bottom: clamp(1.8rem, 4vw, 2.8rem);
+}
+.hero-cta-row {
+  display: flex;
+  gap: clamp(.6rem, 2vw, 1rem);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.hero-cta-primary {
+  font-size: clamp(.85rem, 1vw, .88rem);
+  letter-spacing: .1em;
+  background: var(--leaf);
+  color: var(--cream);
+  padding: clamp(.9rem, 1.5vw, 1.1rem) clamp(1.6rem, 3vw, 2.4rem);
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 52px;
+  text-decoration: none;
+  transition: background .3s;
+}
+.hero-cta-primary:hover { background: var(--forest); }
+.hero-cta-ghost {
+  font-size: clamp(.85rem, 1vw, .88rem);
+  letter-spacing: .1em;
+  color: var(--muted);
+  border-bottom: 1px solid rgba(242,237,227,.25);
+  padding-bottom: 2px;
+  text-decoration: none;
+  min-height: unset;
+}
+
+/* Stats */
+.stat-icon { font-size: clamp(1.1rem, 2.5vw, 1.4rem); }
+.stat-val {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.25rem, 3.5vw, 1.9rem);
+  font-weight: 300;
+  color: var(--cream);
+  line-height: 1;
+}
+.stat-lbl {
+  font-size: clamp(.6rem, .7vw, .68rem);
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-top: .15rem;
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY HERO — MOBILE TYPOGRAPHY
+════════════════════════════════════════════════════ */
+.prop-hero-breadcrumb {
+  position: absolute;
+  top: clamp(5rem, 10vw, 8rem);
+  right: var(--px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: clamp(.65rem, .8vw, .68rem);
+  letter-spacing: .14em;
+  color: rgba(242,237,227,.4);
+}
+.prop-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--px) clamp(2rem, 5vw, 4rem);
+  max-width: 900px;
+  width: 100%;
+}
+.prop-hero-region {
+  font-size: clamp(.65rem, .8vw, .68rem);
+  letter-spacing: .28em;
+  margin-bottom: clamp(.8rem, 2vw, 1.2rem);
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+.prop-hero-h1 {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(2.8rem, 10vw, 8.5rem);
+  font-weight: 300;
+  line-height: .9;
+  margin-bottom: clamp(1rem, 2.5vw, 1.8rem);
+  margin-top: 0;
+  letter-spacing: -.01em;
+}
+.prop-hero-tagline {
+  font-size: clamp(1rem, 1.4vw, 1.05rem);
+  line-height: 1.85;
+  color: var(--muted);
+  max-width: 48ch;
+  margin-bottom: clamp(1.5rem, 3.5vw, 2.8rem);
+}
+.prop-hero-btns {
+  display: flex;
+  gap: clamp(.6rem, 2vw, 1.2rem);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.prop-hero-btn-primary {
+  font-size: clamp(.85rem, 1vw, .88rem);
+  letter-spacing: .1em;
+  background: var(--leaf);
+  color: var(--cream);
+  padding: clamp(.9rem, 1.5vw, 1.1rem) clamp(1.6rem, 3vw, 2.4rem);
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 52px;
+  text-decoration: none;
+  transition: background .3s;
+}
+.prop-hero-btn-primary:hover { background: var(--forest); }
+.prop-hero-price {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+}
+.prop-hero-price-num {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  font-weight: 300;
+  line-height: 1;
+}
+.prop-hero-price-label {
+  font-size: clamp(.75rem, .9vw, .78rem);
+  color: var(--muted);
+}
+
+/* ════════════════════════════════════════════════════
+   FEATURED LOCATION CARD — MOBILE
+════════════════════════════════════════════════════ */
+.feat-badge {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 2;
+  background: var(--leaf);
+  color: var(--cream);
+  font-size: clamp(.6rem, .75vw, .65rem);
+  letter-spacing: .12em;
+  padding: .5rem 1rem;
+}
+.feat-card-num {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(3.5rem, 8vw, 6.5rem);
+  font-weight: 300;
+  line-height: 1;
+  color: rgba(242,237,227,.06);
+}
+.feat-card-type {
+  font-size: clamp(.62rem, .75vw, .65rem);
+  letter-spacing: .2em;
+  margin-bottom: .8rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.feat-card-title {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 300;
+  line-height: 1.0;
+  margin-bottom: .5rem;
+}
+.feat-card-region {
+  font-size: clamp(.82rem, .95vw, .88rem);
+  color: var(--muted);
+  margin-bottom: clamp(1rem, 2vw, 1.8rem);
+}
+.feat-card-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: clamp(1rem, 2vw, 1.8rem);
+}
+.feat-card-pill {
+  font-size: clamp(.62rem, .72vw, .67rem);
+  letter-spacing: .06em;
+  padding: .35rem .9rem;
+}
+.feat-card-price {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: clamp(1.2rem, 2.5vw, 2rem);
+  flex-wrap: wrap;
+}
+.feat-card-price-from {
+  font-size: clamp(.7rem, .8vw, .75rem);
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+.feat-card-price-num {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 300;
+  line-height: 1;
+}
+.feat-card-price-unit {
+  font-size: clamp(.72rem, .85vw, .78rem);
+  color: var(--muted);
+}
+.feat-card-btns {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.feat-card-btn-primary {
+  font-size: clamp(.8rem, .9vw, .85rem);
+  letter-spacing: .1em;
+  background: var(--leaf);
+  color: var(--cream);
+  padding: clamp(.85rem, 1.2vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem);
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  transition: background .3s;
+  min-height: 48px;
+  text-decoration: none;
+}
+.feat-card-btn-primary:hover { background: var(--forest); }
+.feat-card-btn-outline {
+  font-size: clamp(.8rem, .9vw, .85rem);
+  letter-spacing: .1em;
+  border: 1px solid;
+  padding: clamp(.85rem, 1.2vw, 1rem) clamp(1rem, 2vw, 1.4rem);
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  transition: all .3s;
+  min-height: 48px;
+  text-decoration: none;
+}
+
+/* ════════════════════════════════════════════════════
+   GRID LOCATION CARD — MOBILE
+════════════════════════════════════════════════════ */
+.grid-card-num {
+  position: absolute;
+  top: 1.2rem;
+  left: 1.2rem;
+  z-index: 2;
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 300;
+  color: rgba(242,237,227,.08);
+  line-height: 1;
+}
+.grid-card-content {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  padding: clamp(1.2rem, 3vw, 2rem) clamp(1rem, 2.5vw, 1.8rem);
+}
+.grid-card-type {
+  font-size: clamp(.6rem, .72vw, .65rem);
+  letter-spacing: .16em;
+  margin-bottom: .5rem;
+}
+.grid-card-title {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  font-weight: 300;
+  line-height: 1.0;
+  margin-bottom: .3rem;
+}
+.grid-card-region {
+  font-size: clamp(.72rem, .85vw, .78rem);
+  color: var(--muted);
+  margin-bottom: .8rem;
+}
+.grid-card-pills {
+  display: flex;
+  gap: .35rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.grid-card-pill {
+  font-size: clamp(.58rem, .68vw, .62rem);
+  letter-spacing: .06em;
+  border: 1px solid rgba(242,237,227,.12);
+  color: rgba(242,237,227,.4);
+  padding: .25rem .65rem;
+}
+.grid-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: clamp(.68rem, .8vw, .72rem);
+  letter-spacing: .1em;
+  border-bottom: 1px solid;
+  padding-bottom: 1px;
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — SECTION HEADINGS
+════════════════════════════════════════════════════ */
+.section-h2 {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.9rem, 4.5vw, 3.8rem);
+  font-weight: 300;
+  line-height: 1.05;
+  margin-top: 0;
+}
+.section-eyebrow {
+  font-size: clamp(.62rem, .72vw, .65rem);
+  letter-spacing: .26em;
+  margin-bottom: .8rem;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  font-weight: 400;
+}
+.section-body {
+  font-size: clamp(.95rem, 1.2vw, 1rem);
+  line-height: 1.9;
+  color: var(--muted);
+}
+
+/* Gallery heading */
+.gallery-heading-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .8rem;
+}
+.gallery-count-hint {
+  font-size: clamp(.68rem, .8vw, .72rem);
+  letter-spacing: .1em;
+  color: rgba(242,237,227,.3);
+}
+
+/* Room card text */
+.room-card-name {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.15rem, 2vw, 1.35rem);
+  font-weight: 300;
+  color: var(--cream);
+}
+.room-card-cap {
+  font-size: clamp(.7rem, .82vw, .75rem);
+  letter-spacing: .08em;
+}
+.room-card-beds {
+  font-size: clamp(.8rem, .95vw, .85rem);
+  color: var(--muted);
+}
+.room-card-feat {
+  font-size: clamp(.76rem, .88vw, .82rem);
+  color: rgba(242,237,227,.5);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+/* Trail rows */
+.trail-name {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+  font-weight: 300;
+  color: var(--cream);
+  margin-bottom: .4rem;
+}
+.trail-desc {
+  font-size: clamp(.82rem, .95vw, .88rem);
+  line-height: 1.7;
+  color: var(--muted);
+}
+.trail-difficulty {
+  font-size: clamp(.65rem, .78vw, .72rem);
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+.trail-duration {
+  font-size: clamp(.68rem, .8vw, .74rem);
+}
+.trail-distance {
+  font-size: clamp(.65rem, .78vw, .7rem);
+  color: rgba(242,237,227,.35);
+}
+
+/* Attraction cells */
+.attraction-name {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  font-weight: 300;
+  color: var(--cream);
+  flex: 1;
+  min-width: 0;
+}
+.attraction-dist {
+  font-size: clamp(.58rem, .7vw, .64rem);
+  letter-spacing: .12em;
+  flex-shrink: 0;
+}
+.attraction-type {
+  font-size: clamp(.62rem, .75vw, .68rem);
+  letter-spacing: .1em;
+  margin-bottom: .5rem;
+}
+.attraction-desc {
+  font-size: clamp(.82rem, .95vw, .88rem);
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* Food cards */
+.food-name {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1rem, 1.6vw, 1.12rem);
+  font-weight: 300;
+  color: var(--cream);
+  flex: 1;
+  min-width: 0;
+}
+.food-dist {
+  font-size: clamp(.58rem, .7vw, .64rem);
+  letter-spacing: .1em;
+  flex-shrink: 0;
+}
+.food-type {
+  font-size: clamp(.62rem, .75vw, .68rem);
+  letter-spacing: .1em;
+  margin-bottom: .8rem;
+}
+.food-highlight {
+  font-size: clamp(.82rem, .95vw, .88rem);
+  line-height: 1.75;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Reviews */
+.review-quote {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(.95rem, 1.3vw, 1.05rem);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--cream);
+  margin-bottom: 1.5rem;
+}
+.review-who {
+  font-size: clamp(.7rem, .82vw, .76rem);
+  letter-spacing: .08em;
+}
+.review-where {
+  font-size: clamp(.66rem, .78vw, .72rem);
+  color: var(--muted);
+  margin-top: .2rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+/* Amenities */
+.amenity-category {
+  font-size: clamp(.7rem, .82vw, .76rem);
+  letter-spacing: .12em;
+  margin-bottom: 1.2rem;
+}
+.amenity-item {
+  font-size: clamp(.85rem, .98vw, .9rem);
+  color: var(--muted);
+  display: flex;
+  align-items: flex-start;
+  gap: .7rem;
+  line-height: 1.5;
+}
+
+/* For Who */
+.forWho-title {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(1.1rem, 1.8vw, 1.25rem);
+  font-weight: 300;
+  color: var(--cream);
+  margin-bottom: .8rem;
+}
+.forWho-desc {
+  font-size: clamp(.85rem, 1vw, .9rem);
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+/* About section */
+.about-long-desc {
+  font-size: clamp(.95rem, 1.2vw, 1rem);
+  line-height: 2;
+  color: var(--muted);
+  margin-bottom: 2.2rem;
+  max-width: 48ch;
+}
+
+/* CTA section */
+.prop-cta-h2 {
+  font-family: 'Frank Ruhl Libre', Georgia, serif;
+  font-size: clamp(2.4rem, 7vw, 6rem);
+  font-weight: 300;
+  line-height: .93;
+  margin-bottom: 1.8rem;
+  margin-top: 0;
+}
+.prop-cta-desc {
+  font-size: clamp(.95rem, 1.2vw, 1.05rem);
+  line-height: 1.85;
+  color: var(--muted);
+  max-width: 44ch;
+  margin: 0 auto 3rem;
+}
+
+/* ════════════════════════════════════════════════════
+   MOBILE OVERRIDES — HERO CONTENT GRID
+════════════════════════════════════════════════════ */
+@media (max-width: 700px) {
+  .hero-content-grid {
+    grid-template-columns: 1fr !important;
+    padding-bottom: clamp(1.5rem, 4vw, 2.5rem) !important;
+    gap: 0 !important;
+  }
+  .hero-h1 {
+    font-size: clamp(3.5rem, 18vw, 5.5rem) !important;
+  }
+  .hero-desc {
+    font-size: 1rem !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   MOBILE OVERRIDES — PROPERTY HERO
+════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .prop-hero-h1 {
+    font-size: clamp(2.6rem, 12vw, 4rem) !important;
+  }
+  .prop-hero-btns {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .8rem;
+  }
+  .prop-hero-btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   MOBILE OVERRIDES — FEAT CARD
+════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .feat-card-body {
+    padding: 1.8rem 1.4rem !important;
+  }
+  .feat-card-title {
+    font-size: clamp(1.8rem, 8vw, 2.4rem) !important;
+  }
+  .feat-card-btn-primary,
+  .feat-card-btn-outline {
+    flex: 1;
+    justify-content: center;
+  }
 }
