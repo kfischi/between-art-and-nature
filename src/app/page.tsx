@@ -64,9 +64,18 @@ export default function HomePage() {
             המתחמים
             <span style={{ width: 22, height: 1, background: 'var(--sage)' }} />
           </div>
-          <h2 style={{ fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: 'clamp(2.2rem, 4.5vw, 4.8rem)', fontWeight: 300, lineHeight: 1.05 }}>
-            <span style={{ color: 'var(--fern)' }}>מתחמים</span> ייחודיים לבחור
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+            <h2 style={{ fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: 'clamp(2.2rem, 4.5vw, 4.8rem)', fontWeight: 300, lineHeight: 1.05 }}>
+              <span style={{ color: 'var(--fern)' }}>מתחמים</span> ייחודיים לבחור
+            </h2>
+            {/* Mobile scroll hint */}
+            <div className="scroll-hint-mobile" style={{ display: 'flex', alignItems: 'center', gap: '.5rem', color: 'var(--muted)', fontSize: '.65rem', letterSpacing: '.1em' }}>
+              <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
+                <path d="M1 5h18M14 1l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              גלגלו
+            </div>
+          </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.1}>
@@ -80,16 +89,6 @@ export default function HomePage() {
             </ScrollReveal>
           ))}
         </div>
-
-        <style>{`
-          @media (max-width: 900px) {
-            section[id="locations"] { padding: 5rem 2rem !important; }
-            section[id="locations"] > div:last-child { grid-template-columns: 1fr 1fr !important; }
-          }
-          @media (max-width: 600px) {
-            section[id="locations"] > div:last-child { grid-template-columns: 1fr !important; }
-          }
-        `}</style>
       </section>
 
       {/* NATURE BRAND SPLIT */}
@@ -108,7 +107,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div style={{ background: 'var(--leaf)', padding: 'var(--py) var(--px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ background: 'var(--leaf)', padding: '5rem 4rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <ScrollReveal>
             <div style={{ fontSize: '.62rem', letterSpacing: '.28em', color: 'var(--fern)', display: 'flex', alignItems: 'center', gap: '.7rem', marginBottom: '1rem' }}>
               הרשת שלנו <span style={{ width: 22, height: 1, background: 'var(--fern)' }} />
@@ -229,13 +228,13 @@ export default function HomePage() {
             { stars: '★★★★★', color: 'var(--fern)', quote: 'הכפר, הנוף, האנשים — פקיעין היא חוויה שאי אפשר לשחזר בשום מקום אחר.', who: 'שושי ומשה אברהם', where: 'כפר פקיעין · ספטמבר 2024' },
           ].map((r, i) => (
             <ScrollReveal key={i} delay={i * 0.1}>
-              <div style={{ background: 'var(--bark)', border: '1px solid rgba(122,158,95,.1)', padding: '2rem', height: '100%' }}>
-                <div style={{ color: r.color, letterSpacing: '.1em', marginBottom: '1rem' }}>{r.stars}</div>
-                <p style={{ fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: '1rem', fontStyle: 'italic', fontWeight: 300, lineHeight: 1.65, color: 'var(--cream)', marginBottom: '1.5rem' }}>
+              <div style={{ background: 'var(--bark)', border: '1px solid rgba(122,158,95,.1)', padding: 'clamp(1.4rem,3vw,2rem)', height: '100%' }}>
+                <div style={{ color: r.color, letterSpacing: '.1em', marginBottom: '1rem', fontSize: 'clamp(.9rem,2.5vw,1rem)' }}>{r.stars}</div>
+                <p style={{ fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: 'clamp(.95rem,2.5vw,1rem)', fontStyle: 'italic', fontWeight: 300, lineHeight: 1.65, color: 'var(--cream)', marginBottom: '1.5rem' }}>
                   &ldquo;{r.quote}&rdquo;
                 </p>
-                <div style={{ fontSize: '.72rem', letterSpacing: '.08em', color: r.color }}>{r.who}</div>
-                <div style={{ fontSize: '.68rem', color: 'var(--muted)', marginTop: '.2rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                <div style={{ fontSize: 'clamp(.7rem,1.8vw,.72rem)', letterSpacing: '.08em', color: r.color }}>{r.who}</div>
+                <div style={{ fontSize: 'clamp(.66rem,1.6vw,.68rem)', color: 'var(--muted)', marginTop: '.2rem', display: 'flex', alignItems: 'center', gap: '.5rem' }}>
                   <span style={{ width: 10, height: 1, background: 'var(--muted)' }} />
                   {r.where}
                 </div>
@@ -243,16 +242,6 @@ export default function HomePage() {
             </ScrollReveal>
           ))}
         </div>
-
-        <style>{`
-          @media (max-width: 900px) {
-            section[style*="grid-template-columns: 1fr 1.5fr"] { grid-template-columns: 1fr !important; padding: 5rem 2rem !important; }
-            section[style*="grid-template-columns: 1fr 1.5fr"] > div:first-child { position: static !important; }
-          }
-          @media (max-width: 600px) {
-            section[style*="grid-template-columns: 1fr 1.5fr"] > div:last-child { grid-template-columns: 1fr !important; }
-          }
-        `}</style>
       </section>
 
       {/* CTA */}
