@@ -115,52 +115,55 @@ export function GridLocationCard({ loc }: { loc: Location }) {
         fill
         style={{ objectFit: 'cover', filter: 'brightness(.6) saturate(1.15)', transition: 'transform 1s, filter .6s' }}
         className={`grid-img-${loc.slug}`}
-        sizes="33vw"
+        sizes="(max-width: 768px) 80vw, 33vw"
+        priority={false}
       />
 
-      {/* Overlay */}
+      {/* Overlay — stronger gradient at bottom for legibility */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(to top, rgba(28,26,22,.97) 0%, rgba(28,26,22,.05) 55%)',
+        background: 'linear-gradient(to top, rgba(28,26,22,1) 0%, rgba(28,26,22,.5) 40%, transparent 70%)',
       }} />
 
-      {/* Num */}
+      {/* Num watermark */}
       <div style={{
         position: 'absolute', top: '1.5rem', left: '1.5rem', zIndex: 2,
-        fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: '3.5rem', fontWeight: 300,
-        color: 'rgba(242,237,227,.08)', lineHeight: 1,
+        fontFamily: "'Frank Ruhl Libre', Georgia, serif",
+        fontSize: 'clamp(2.8rem,8vw,3.5rem)', fontWeight: 300,
+        color: 'rgba(242,237,227,.1)', lineHeight: 1,
       }}>
         {loc.num}
       </div>
 
       {/* Content */}
-      <div style={{ position: 'absolute', bottom: 0, right: 0, left: 0, zIndex: 2, padding: '2rem 1.8rem' }}>
-        <div style={{ fontSize: '.6rem', letterSpacing: '.18em', color: loc.color, marginBottom: '.6rem' }}>
+      <div style={{ position: 'absolute', bottom: 0, right: 0, left: 0, zIndex: 2, padding: 'clamp(1.4rem,4vw,2rem) clamp(1.2rem,3.5vw,1.8rem)' }}>
+        <div style={{ fontSize: 'clamp(.6rem,.7vw,.7rem)', letterSpacing: '.18em', color: loc.color, marginBottom: '.6rem' }}>
           {loc.type} · עד {loc.capacity}
         </div>
         <div style={{
-          fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: '1.9rem', fontWeight: 300,
-          lineHeight: 1.0, marginBottom: '.3rem',
+          fontFamily: "'Frank Ruhl Libre', Georgia, serif",
+          fontSize: 'clamp(1.65rem,5vw,1.9rem)', fontWeight: 300,
+          lineHeight: 1.0, marginBottom: '.4rem',
         }}>
           {loc.nameParts.regular}{' '}
           <span style={{ color: loc.color }}>{loc.nameParts.colored}</span>
         </div>
-        <div style={{ fontSize: '.72rem', color: 'var(--muted)', marginBottom: '1rem' }}>
+        <div style={{ fontSize: 'clamp(.7rem,2vw,.72rem)', color: 'var(--muted)', marginBottom: '1rem' }}>
           {loc.region}
         </div>
         <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap', marginBottom: '1.2rem' }}>
           {loc.pills.slice(0, 3).map(p => (
             <span key={p} style={{
-              fontSize: '.58rem', letterSpacing: '.06em',
-              border: '1px solid rgba(242,237,227,.12)', color: 'rgba(242,237,227,.4)',
-              padding: '.25rem .65rem',
+              fontSize: 'clamp(.58rem,1.5vw,.62rem)', letterSpacing: '.06em',
+              border: '1px solid rgba(242,237,227,.18)', color: 'rgba(242,237,227,.55)',
+              padding: '.28rem .7rem', borderRadius: '2px',
             }}>{p}</span>
           ))}
         </div>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: '.4rem',
-          fontSize: '.68rem', letterSpacing: '.1em', color: loc.color,
-          borderBottom: `1px solid rgba(${loc.colorRgb},.3)`, paddingBottom: 1,
+          fontSize: 'clamp(.68rem,2vw,.72rem)', letterSpacing: '.1em', color: loc.color,
+          borderBottom: `1px solid rgba(${loc.colorRgb},.4)`, paddingBottom: 2,
         }}>
           לדף המתחם ←
         </span>
