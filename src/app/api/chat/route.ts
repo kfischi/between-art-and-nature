@@ -95,7 +95,7 @@ OPTIONS תמיד כולל אפשרות כמו: [אני רוצה להזמין] | 
    בריכה מחוממת, ג'קוזי, קמין, 5 ח"ש, BBQ | שבת חתן, משפחות, אירועים
 2. אחוזה בגליל | קיבולת עד 10 | ₪950/לילה | גליל מערבי
    ג'קוזי פרטי, קמין עצים, נוף פנורמי | זוגות, ריטריט
-3. מתחם גרנות | קיבולת עד 20 | ₪1,400/לילה | גליל מרכזי
+3. מתחם צוריאל | קיבולת עד 20 | ₪1,400/לילה | גליל מרכזי
    BBQ, טאבון, שדות פתוחים, גלאמפינג | משפחות, שבת חתן, גיבוש
 4. כפר פקיעין | קיבולת עד 10 | ₪800/לילה | גליל עליון
    בתי אבן עתיקים, חצר, אוכל דרוזי | זוגות, היסטוריה, ריטריט`;
@@ -103,7 +103,6 @@ OPTIONS תמיד כולל אפשרות כמו: [אני רוצה להזמין] | 
 // ── Weather fetch ──────────────────────────────
 async function getWeather(region: string): Promise<string> {
   try {
-    // Galilee coordinates: Upper (33.0, 35.5) / Lower (32.7, 35.3)
     const lat = region.includes('עליון') ? 33.0 : 32.7;
     const lon = region.includes('עליון') ? 35.5 : 35.3;
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weathercode,windspeed_10m,precipitation&timezone=Asia%2FJerusalem&forecast_days=1`;
@@ -143,8 +142,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ text: "לא הבנתי.", options: ["התחילו מחדש"] });
     }
 
-    // Check if AI wants weather
-    // First pass — ask Gemini
     const contents = [
       { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
       { role: 'model', parts: [{ text: 'הבנתי. אני נועה.' }] },
@@ -169,7 +166,7 @@ export async function POST(req: Request) {
 
     let raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
-    // Handle weather fetch request
+    // Handle weather fetch
     const weatherMatch = raw.match(/FETCH_WEATHER:\s*(.+)/);
     if (weatherMatch) {
       const region = weatherMatch[1].trim();
@@ -196,7 +193,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ text, options, whatsappSummary });
 
-  } catch (error) {
+  } catch {
     return NextResponse.json({
       text: "תקלה זמנית.",
       options: ["נסו שוב", "פנו ב-WhatsApp"]
