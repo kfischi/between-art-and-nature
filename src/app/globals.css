@@ -1,25 +1,544 @@
-import { Metadata } from 'next'
-import { getLocation } from '@/lib/locations'
-import PropertyPage from '@/components/PropertyPage'
+@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&family=Heebo:wght@200;300;400;500&display=swap');
+@import "tailwindcss";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const loc = getLocation('tzuriel')!
-  return {
-    title: `${loc.name} — בין אומנות לטבע`,
-    description: loc.description,
-    keywords: loc.seoKeywords.join(', '),
-    openGraph: {
-      title: loc.name,
-      description: loc.description,
-      images: [{ url: loc.imageFeatured || loc.image, width: 1200, height: 630 }],
-      locale: 'he_IL',
-      type: 'website',
-    },
-    alternates: { canonical: `https://between-art-and-nature.netlify.app/tzuriel` },
+/* ════════════════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════════════════ */
+:root {
+  --soil:     #1C1A16;
+  --bark:     #252019;
+  --log:      #2E2820;
+  --forest:   #2D5016;
+  --leaf:     #4A7C2F;
+  --sage:     #7A9E5F;
+  --fern:     #A8C278;
+  --sky:      #4A7FA5;
+  --sky-lt:   #7BAECB;
+  --terra:    #B5602A;
+  --terra-lt: #D4865A;
+  --cream:    #F2EDE3;
+  --sand:     #D9C9A8;
+  --muted:    rgba(242,237,227,0.55);
+  --dim:      rgba(242,237,227,0.1);
+  --ease:     cubic-bezier(0.16,1,0.3,1);
+
+  /* Fluid spacing — used everywhere via var() */
+  --px: clamp(1.25rem, 5vw, 4rem);
+  --py: clamp(3.5rem, 8vw, 6rem);
+  --py-sm: clamp(2rem, 5vw, 3.5rem);
+}
+
+/* ════════════════════════════════════════════════════
+   BASE
+════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; direction: rtl; }
+body {
+  background: var(--soil);
+  color: var(--cream);
+  font-weight: 300;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Heebo', sans-serif;
+  margin: 0;
+}
+img { max-width: 100%; display: block; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--soil); }
+::-webkit-scrollbar-thumb { background: var(--sage); border-radius: 2px; }
+
+/* Hide strip scrollbars */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ════════════════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════════════════ */
+.rv {
+  opacity: 0;
+  transform: translateY(44px);
+  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+}
+.rv.in { opacity: 1; transform: none; }
+.d1 { transition-delay: 0.10s; }
+.d2 { transition-delay: 0.22s; }
+.d3 { transition-delay: 0.34s; }
+.d4 { transition-delay: 0.46s; }
+.clip-r { clip-path: inset(100% 0 0 0); transition: clip-path 1.2s var(--ease); }
+.clip-r.in { clip-path: inset(0 0 0 0); }
+@keyframes mqScroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+@keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.08);opacity:.4} }
+@keyframes lbFd { from{opacity:0} to{opacity:1} }
+
+/* ════════════════════════════════════════════════════
+   NAV
+════════════════════════════════════════════════════ */
+.nav-desktop { display: flex; }
+.nav-mobile-btn { display: none; }
+
+@media (max-width: 900px) {
+  .nav-desktop { display: none !important; }
+  .nav-mobile-btn { display: flex !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   HERO SLIDER (home)
+════════════════════════════════════════════════════ */
+.hero-content-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: flex-end;
+  gap: 3rem;
+  padding: 0 var(--px) clamp(2rem,6vw,5rem);
+}
+.hero-dots { display: flex; }
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.stat-cell {
+  padding: clamp(.9rem,2.5vw,1.6rem) clamp(.9rem,2vw,2rem);
+}
+
+@media (max-width: 700px) {
+  .hero-content-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .hero-dots { display: none !important; }
+}
+@media (max-width: 640px) {
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
-export default function Page() {
-  const loc = getLocation('tzuriel')!
-  return <PropertyPage loc={loc} />
+/* ════════════════════════════════════════════════════
+   BOOKING BAR
+════════════════════════════════════════════════════ */
+.booking-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+}
+.booking-btn { min-height: 56px; }
+
+@media (max-width: 900px) {
+  .booking-bar { grid-template-columns: 1fr 1fr !important; }
+  .booking-btn { grid-column: span 2; padding: 1.2rem !important; }
+}
+@media (max-width: 500px) {
+  .booking-bar { grid-template-columns: 1fr !important; }
+  .booking-btn { grid-column: 1 !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   HOME PAGE — LOCATIONS SECTION
+════════════════════════════════════════════════════ */
+.locations-section { padding: var(--py) var(--px); }
+
+/* Featured card */
+.feat-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 70vh;
+  margin-bottom: 2px;
+}
+.feat-card-photo { position: relative; overflow: hidden; }
+.feat-card-body {
+  background: var(--bark);
+  padding: clamp(2rem,4vw,4rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(122,158,95,.1);
+}
+.feat-img { transition: transform 1.1s !important; }
+.feat-img:hover { transform: scale(1.04) !important; }
+
+@media (max-width: 900px) {
+  .feat-card { grid-template-columns: 1fr !important; min-height: unset !important; }
+  .feat-card-photo { height: 55vw; }
+}
+
+/* Grid cards */
+.locations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin-top: 2px;
+}
+
+@media (max-width: 900px) {
+  .locations-grid { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 600px) {
+  .locations-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Grid card link */
+.grid-card { position: relative; overflow: hidden; display: block; aspect-ratio: 2/3; }
+.grid-card-img { transition: transform 1s, filter .6s !important; }
+.grid-card:hover .grid-card-img {
+  transform: scale(1.07) !important;
+  filter: brightness(.75) saturate(1.3) !important;
+}
+@media (max-width: 600px) {
+  .grid-card { aspect-ratio: 3/4 !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   HOME — NATURE SPLIT
+════════════════════════════════════════════════════ */
+.nature-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 80vh;
+  overflow: hidden;
+}
+.nature-split-photo { position: relative; overflow: hidden; }
+.nature-split-body {
+  background: var(--leaf);
+  padding: var(--py) var(--px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .nature-split { grid-template-columns: 1fr !important; min-height: unset !important; }
+  .nature-split-photo { height: 60vw; }
+}
+
+/* ════════════════════════════════════════════════════
+   HOME — EXPERIENCES
+════════════════════════════════════════════════════ */
+.exp-section { padding: var(--py) var(--px); }
+.exp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+
+@media (max-width: 900px) {
+  .exp-grid { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 500px) {
+  .exp-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   HOME — REVIEWS
+════════════════════════════════════════════════════ */
+.reviews-outer {
+  padding: var(--py) var(--px);
+  background: var(--soil);
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 5rem;
+  align-items: start;
+}
+.reviews-sticky { position: sticky; top: 8rem; }
+.reviews-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5px;
+}
+
+@media (max-width: 900px) {
+  .reviews-outer {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+  }
+  .reviews-sticky { position: static !important; }
+}
+@media (max-width: 500px) {
+  .reviews-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   HOME — CTA
+════════════════════════════════════════════════════ */
+.cta-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+  .cta-btns {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 1rem;
+  }
+  .cta-btns a { justify-content: center; text-align: center; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY HERO
+════════════════════════════════════════════════════ */
+.prop-hero { height: 90svh; }
+.prop-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--px) clamp(2.5rem,5vw,4rem);
+  max-width: 900px;
+}
+.prop-hero-breadcrumb {
+  position: absolute;
+  top: 8rem;
+  right: var(--px);
+  z-index: 3;
+}
+
+@media (max-width: 640px) {
+  .prop-hero { height: 100svh !important; }
+  .prop-hero-breadcrumb { top: 5.5rem !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — GALLERY
+════════════════════════════════════════════════════ */
+.gallery-header { padding: clamp(2.5rem,5vw,4rem) var(--px) 1.5rem; }
+.gallery-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 1rem var(--px) 2.5rem;
+  cursor: grab;
+  user-select: none;
+  -webkit-overflow-scrolling: touch;
+}
+.gallery-strip::-webkit-scrollbar { display: none; }
+.gallery-strip:active { cursor: grabbing; }
+.gallery-card { flex-shrink: 0; width: 280px; height: 320px; }
+.gallery-card-active { width: 420px; }
+.gallery-hint { display: inline; }
+.gallery-dots { padding-bottom: 3rem; display: flex; gap: 5px; justify-content: center; }
+
+/* Lightbox */
+.lb-thumbs { display: flex; }
+
+@media (max-width: 768px) {
+  .gallery-card { width: 72vw !important; height: 260px !important; }
+  .gallery-card-active { width: 80vw !important; }
+  .gallery-hint { display: none !important; }
+}
+@media (max-width: 480px) {
+  .gallery-card { width: 80vw !important; height: 230px !important; }
+  .lb-thumbs { display: none !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — ABOUT SPLIT
+════════════════════════════════════════════════════ */
+.about-section { position: relative; background: var(--bark); overflow: hidden; }
+.about-diag {
+  position: absolute; top: 0; right: 0;
+  width: 45%; height: 100%;
+  background: var(--soil);
+  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0% 100%);
+  z-index: 0;
+}
+.about-grid {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 60vh;
+  align-items: stretch;
+}
+.about-text {
+  padding: var(--py) var(--px);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.about-image { position: relative; }
+.about-price-badge {
+  position: absolute;
+  bottom: 3rem; left: 3rem;
+  background: rgba(28,26,22,.85);
+  backdrop-filter: blur(12px);
+  padding: 1.4rem 2rem;
+}
+
+@media (max-width: 900px) {
+  .about-diag { display: none !important; }
+  .about-grid { grid-template-columns: 1fr !important; min-height: unset !important; }
+  .about-image { height: 55vw; }
+  .about-price-badge { bottom: 1.5rem; left: 1.5rem; padding: 1rem 1.5rem; }
+}
+@media (max-width: 640px) {
+  .about-image { height: 60vw; }
+  .about-price-badge { bottom: 1rem; left: 1rem; padding: .8rem 1.2rem; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — ROOMS
+════════════════════════════════════════════════════ */
+.rooms-section { padding: var(--py) 0; overflow: hidden; }
+.rooms-header { padding: 0 var(--px) 2.5rem; }
+.rooms-strip {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 var(--px) 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+.rooms-strip::-webkit-scrollbar { display: none; }
+.room-card {
+  flex-shrink: 0;
+  width: 300px;
+  background: var(--bark);
+  padding: 2.5rem 2rem;
+  display: flex; flex-direction: column; gap: .8rem;
+}
+
+@media (max-width: 640px) {
+  .room-card { width: 80vw !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — FOR WHO
+════════════════════════════════════════════════════ */
+.forWho-section { padding: var(--py) var(--px); }
+.forWho-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 2px;
+}
+
+@media (max-width: 480px) {
+  .forWho-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — AMENITIES
+════════════════════════════════════════════════════ */
+.amenities-section { padding: var(--py) var(--px); }
+.amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 3rem 4rem;
+}
+
+@media (max-width: 640px) {
+  .amenities-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
+}
+@media (max-width: 400px) {
+  .amenities-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — AREA
+════════════════════════════════════════════════════ */
+.area-content {
+  position: relative; z-index: 2;
+  padding: var(--py) var(--px);
+  max-width: 700px;
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — ATTRACTIONS
+════════════════════════════════════════════════════ */
+.attractions-section { padding: var(--py) var(--px); }
+.attractions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+.attraction-cell {
+  display: flex; gap: 2rem; padding: 2.2rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 700px) {
+  .attractions-grid { grid-template-columns: 1fr !important; }
+  .attraction-cell { gap: 1rem; padding: 1.5rem var(--px); }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — TRAILS
+════════════════════════════════════════════════════ */
+.trails-section { padding: var(--py) var(--px); }
+.trail-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 2rem;
+  padding: 2rem 2.5rem;
+  align-items: center;
+}
+.trail-num { text-align: center; }
+.trail-meta {
+  display: flex; flex-direction: column; gap: .4rem;
+  text-align: left; flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .trail-row {
+    grid-template-columns: 1fr auto !important;
+    gap: 1rem !important;
+    padding: 1.5rem !important;
+  }
+  .trail-num { display: none !important; }
+  .trail-meta { flex-direction: row; gap: .8rem; align-items: center; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — FOOD
+════════════════════════════════════════════════════ */
+.food-section { padding: var(--py) var(--px); }
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 2px;
+}
+
+@media (max-width: 480px) {
+  .food-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   PROPERTY PAGE — CTA
+════════════════════════════════════════════════════ */
+.prop-cta-content {
+  position: relative; z-index: 2;
+  padding: clamp(2.5rem,5vw,4rem) var(--px);
+  max-width: 700px;
+}
+
+/* ════════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════════ */
+.footer-root { padding: var(--py) var(--px) 2.5rem; }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(122,158,95,.1);
+  margin-bottom: 2rem;
+}
+.footer-bottom {
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
+}
+@media (max-width: 500px) {
+  .footer-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ════════════════════════════════════════════════════
+   TOUCH & ACCESSIBILITY
+════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  button, a { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv { opacity: 1 !important; transform: none !important; }
+  .clip-r { clip-path: none !important; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
