@@ -1,158 +1,259 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
+import { locations } from '@/lib/locations'
 
-const slides = [
-  { src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=75&auto=format&fit=crop', label: 'גליל עליון' },
-  { src: 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=1600&q=75&auto=format&fit=crop', label: 'נוף הגליל' },
-  { src: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600&q=75&auto=format&fit=crop', label: 'יערות הגליל' },
-  { src: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=75&auto=format&fit=crop', label: 'גליל מרכזי' },
-]
+const F = "'Frank Ruhl Libre', Georgia, serif"
+
+const SLIDES = locations.map(loc => ({
+  slug:      loc.slug,
+  name:      loc.name,
+  nameParts: loc.nameParts,
+  tagline:   loc.tagline,
+  image:     loc.imageFeatured || loc.image,
+  color:     loc.color,
+  colorRgb:  loc.colorRgb,
+  num:       loc.num,
+  priceFrom: loc.priceFrom,
+  waText:    loc.waText,
+}))
 
 export default function HeroSlider() {
   const [cur, setCur] = useState(0)
+  const [prev, setPrev] = useState<number | null>(null)
+  const [transitioning, setTransitioning] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const touchX = useRef(0)
+
+  const goTo = useCallback((idx: number) => {
+    if (transitioning || idx === cur) return
+    setPrev(cur)
+    setCur(idx)
+    setTransitioning(true)
+    setTimeout(() => { setPrev(null); setTransitioning(false) }, 1000)
+  }, [cur, transitioning])
+
+  const nextSlide = useCallback(() => goTo((cur + 1) % SLIDES.length), [cur, goTo])
+  const prevSlide = useCallback(() => goTo((cur - 1 + SLIDES.length) % SLIDES.length), [cur, goTo])
 
   useEffect(() => {
-    const t = setInterval(() => setCur(c => (c + 1) % slides.length), 5000)
-    return () => clearInterval(t)
-  }, [])
+    timerRef.current = setTimeout(nextSlide, 6000)
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [cur, nextSlide])
+
+  const onTouchStart = (e: React.TouchEvent) => { touchX.current = e.touches[0].clientX }
+  const onTouchEnd   = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchX.current
+    if (Math.abs(dx) > 50) dx > 0 ? prevSlide() : nextSlide()
+  }
+
+  const slide = SLIDES[cur]
 
   return (
-    <section style={{
-      height: '100svh', position: 'relative', overflow: 'hidden',
-      display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-    }}>
-      {/* Color stripe */}
+    <div
+      style={{ position: 'relative', height: '100svh', overflow: 'hidden', background: 'var(--soil)' }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Background images — crossfade */}
+      {SLIDES.map((s, i) => {
+        const isActive = i === cur
+        const isPrev   = i === prev
+        if (!isActive && !isPrev) return null
+        return (
+          <div key={s.slug} style={{
+            position: 'absolute', inset: 0,
+            opacity: isActive ? 1 : 0,
+            transition: isActive ? 'opacity 1s ease' : 'opacity .6s ease .4s',
+            zIndex: isActive ? 1 : 0,
+          }}>
+            <Image
+              src={s.image}
+              alt={s.name}
+              fill
+              priority={i === 0}
+              style={{ objectFit: 'cover', filter: 'brightness(.62) saturate(1.1)' }}
+              sizes="100vw"
+            />
+          </div>
+        )
+      })}
+
+      {/* Gradient overlays */}
       <div style={{
-        position: 'absolute', top: 0, left: 0, bottom: 0, width: 4, zIndex: 3,
-        background: 'linear-gradient(to bottom, var(--leaf) 0%, var(--sky) 50%, var(--terra) 100%)',
+        position: 'absolute', inset: 0, zIndex: 2,
+        background: `
+          linear-gradient(to top, rgba(28,26,22,1) 0%, rgba(28,26,22,.1) 50%, transparent 75%),
+          linear-gradient(to right, rgba(28,26,22,.65) 0%, transparent 65%)
+        `,
       }} />
 
-      {/* Slides */}
-      {slides.map((s, i) => (
-        <div key={i} style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: `url(${s.src})`,
-          backgroundSize: 'cover', backgroundPosition: 'center',
-          filter: 'brightness(.52) saturate(1.2)',
-          opacity: i === cur ? 1 : 0,
-          transition: 'opacity 1.6s ease',
-        }} />
-      ))}
-
-      {/* Overlay */}
+      {/* Top color accent */}
       <div style={{
-        position: 'absolute', inset: 0,
-        background: 'linear-gradient(to top, rgba(28,26,22,1) 0%, rgba(28,26,22,.45) 35%, rgba(28,26,22,.05) 70%)',
-        zIndex: 1,
+        position: 'absolute', top: 0, left: 0, right: 0, height: 3, zIndex: 4,
+        background: `linear-gradient(to left, transparent, rgba(${slide.colorRgb},.9), transparent)`,
+        transition: 'background .8s',
       }} />
 
-      {/* Content */}
-      <div style={{
-        position: 'relative', zIndex: 2,
-        padding: '0 4rem 5rem',
-        display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'flex-end', gap: '3rem',
+      {/* Desktop side nav dots */}
+      <div className="hero-side-dots" style={{
+        position: 'absolute', top: '50%', left: '2.5rem', transform: 'translateY(-50%)',
+        zIndex: 4, flexDirection: 'column', gap: '1.2rem',
       }}>
-        <div style={{ maxWidth: 780 }}>
-          <div style={{
-            fontSize: '.68rem', letterSpacing: '.28em', color: 'var(--fern)',
-            marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '.8rem',
-          }}>
-            גליל · נופש בטבע · אומנות המקום
-            <span style={{ width: 32, height: 1, background: 'var(--fern)' }} />
-          </div>
+        {SLIDES.map((s, i) => (
+          <button key={s.slug} onClick={() => goTo(i)} aria-label={`מתחם ${s.name}`}
+            style={{
+              width: i === cur ? 3 : 2,
+              height: i === cur ? 32 : 18,
+              background: i === cur ? s.color : 'rgba(242,237,227,.25)',
+              border: 'none', borderRadius: 2, cursor: 'pointer',
+              transition: 'all .5s cubic-bezier(.16,1,.3,1)', padding: 0,
+            }}
+          />
+        ))}
+      </div>
 
-          <h1 style={{
-            fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontWeight: 300,
-            fontSize: 'clamp(3.8rem, 8.5vw, 9rem)', lineHeight: .92,
-            marginBottom: '1.8rem',
-          }}>
-            <span style={{ color: 'var(--fern)', display: 'block' }}>ירוק.</span>
-            <span style={{ color: 'var(--sky-lt)', display: 'block' }}>כחול.</span>
-            <span style={{ color: 'var(--terra-lt)', display: 'block' }}>חום.</span>
-          </h1>
-
-          <p style={{
-            fontSize: '.97rem', lineHeight: 1.9, color: 'var(--muted)',
-            maxWidth: '50ch', marginBottom: '2.5rem',
-          }}>
-            מתחמי נופש ייחודיים בגלב הגליל המערבי — כל אחד עם אופי משלו, כולם עם אותה אהבה למקום ולטבע.
-          </p>
-
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="#locations" style={{
-              fontSize: '.75rem', letterSpacing: '.1em',
-              background: 'var(--leaf)', color: 'var(--cream)',
-              padding: '1rem 2.4rem', display: 'inline-flex', alignItems: 'center', gap: '.5rem',
-            }}>
-              לכל המתחמים
-            </Link>
-            <Link href="#exp" style={{
-              fontSize: '.75rem', letterSpacing: '.1em', color: 'var(--muted)',
-              borderBottom: '1px solid rgba(242,237,227,.25)', paddingBottom: 1,
-            }}>
-              גלו את החוויה
-            </Link>
-          </div>
+      {/* Main content */}
+      <div style={{
+        position: 'absolute', bottom: 0, right: 0, left: 0, zIndex: 4,
+        padding: 'clamp(2rem,5vw,5rem) clamp(1.5rem,6vw,5rem)',
+        paddingBottom: 'clamp(6rem,12vw,9rem)',
+      }}>
+        {/* Giant number watermark */}
+        <div style={{
+          fontFamily: F, fontSize: 'clamp(5rem,20vw,14rem)', fontWeight: 300,
+          color: `rgba(${slide.colorRgb},.07)`,
+          lineHeight: 1, position: 'absolute', bottom: '4.5rem', left: '.5rem',
+          transition: 'color .6s', userSelect: 'none', pointerEvents: 'none',
+        }}>
+          {slide.num}
         </div>
 
-        {/* Slide dots */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '.5rem' }}>
-          {slides.map((s, i) => (
-            <button key={i} onClick={() => setCur(i)} style={{
-              width: 2, height: i === cur ? 44 : 20,
-              background: i === cur ? 'var(--sage)' : 'rgba(242,237,227,.2)',
-              border: 'none', padding: 0, cursor: 'pointer',
-              transition: 'height .4s, background .3s',
-            }} aria-label={s.label} />
-          ))}
+        {/* Eyebrow */}
+        <div style={{
+          fontSize: '.6rem', letterSpacing: '.28em', color: slide.color,
+          display: 'flex', alignItems: 'center', gap: '.7rem', marginBottom: '1rem',
+          transition: 'color .5s',
+        }}>
+          <span style={{ width: 18, height: 1, background: slide.color, display: 'inline-block' }} />
+          מתחם {slide.num} מתוך {SLIDES.length}
+        </div>
+
+        {/* Title */}
+        <h1 style={{
+          fontFamily: F,
+          fontSize: 'clamp(2.6rem, 8vw, 8rem)',
+          fontWeight: 300, lineHeight: .95,
+          marginBottom: 'clamp(.8rem,2vw,1.4rem)',
+        }}>
+          {slide.nameParts.regular}{' '}
+          <em style={{ fontStyle: 'italic', color: slide.color, transition: 'color .5s' }}>
+            {slide.nameParts.colored}
+          </em>
+        </h1>
+
+        {/* Tagline */}
+        <p style={{
+          fontSize: 'clamp(.83rem,2.2vw,1rem)',
+          color: 'rgba(242,237,227,.6)',
+          lineHeight: 1.6, maxWidth: '44ch',
+          marginBottom: 'clamp(1.4rem,3vw,2.2rem)',
+        }}>
+          {slide.tagline}
+        </p>
+
+        {/* CTAs */}
+        <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link href={`/${slide.slug}`} style={{
+            fontFamily: "'Heebo', sans-serif", fontSize: '.72rem', letterSpacing: '.1em',
+            background: slide.color, color: 'var(--cream)',
+            padding: 'clamp(.8rem,2vw,1rem) clamp(1.2rem,2.5vw,1.8rem)',
+            display: 'inline-flex', alignItems: 'center', gap: '.5rem',
+            transition: 'opacity .3s', textDecoration: 'none', minHeight: 48,
+          }}>
+            לדף המתחם ←
+          </Link>
+          <a href={`https://wa.me/972523983394?text=${encodeURIComponent(slide.waText)}`}
+            target="_blank" rel="noopener noreferrer"
+            style={{
+              fontFamily: "'Heebo', sans-serif", fontSize: '.72rem', letterSpacing: '.1em',
+              border: `1px solid rgba(${slide.colorRgb},.5)`, color: slide.color,
+              padding: 'clamp(.8rem,2vw,1rem) clamp(1rem,2vw,1.4rem)',
+              display: 'inline-flex', alignItems: 'center', gap: '.5rem',
+              transition: 'border-color .3s', textDecoration: 'none', minHeight: 48,
+            }}>
+            💬 הזמינו
+          </a>
+
+          {/* Price */}
+          <div style={{
+            marginRight: 'auto', fontSize: '.62rem', letterSpacing: '.06em',
+            color: 'rgba(242,237,227,.4)', display: 'flex', flexDirection: 'column', gap: '.15rem',
+          }}>
+            <span>החל מ-</span>
+            <span style={{ fontFamily: F, fontSize: 'clamp(1.1rem,3vw,1.4rem)', fontWeight: 300, color: slide.color, lineHeight: 1 }}>
+              ₪{slide.priceFrom.toLocaleString()}
+            </span>
+            <span>/ לילה</span>
+          </div>
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
-        borderTop: '1px solid rgba(122,158,95,.2)',
-        background: 'rgba(28,26,22,.75)', backdropFilter: 'blur(12px)',
-        position: 'relative', zIndex: 2,
+      {/* Desktop thumbnail strip */}
+      <div className="hero-thumb-strip" style={{
+        position: 'absolute', bottom: '1.2rem', left: 0, right: 0,
+        zIndex: 5, justifyContent: 'center', gap: '8px', padding: '0 5rem',
       }}>
-        {[
-          { icon: '🌿', val: '4', lbl: 'מתחמים' },
-          { icon: '🏡', val: '18', lbl: 'יחידות לינה' },
-          { icon: '⭐', val: '4.9', lbl: 'דירוג ממוצע' },
-          { icon: '📍', val: 'גליל', lbl: 'מערבי' },
-        ].map((s, i) => (
-          <div key={i} style={{
-            padding: '1.6rem 2rem',
-            borderLeft: i > 0 ? '1px solid rgba(122,158,95,.15)' : 'none',
-            display: 'flex', alignItems: 'center', gap: '1rem',
-          }}>
-            <span style={{ fontSize: '1.4rem' }}>{s.icon}</span>
-            <div>
+        {SLIDES.map((s, i) => (
+          <button key={s.slug} onClick={() => goTo(i)} aria-label={s.name}
+            style={{
+              flex: i === cur ? '0 0 100px' : '0 0 52px',
+              height: 44, overflow: 'hidden', position: 'relative',
+              border: i === cur ? `1px solid ${s.color}` : '1px solid rgba(242,237,227,.15)',
+              cursor: 'pointer', background: 'none', padding: 0, borderRadius: '2px',
+              transition: 'flex .5s cubic-bezier(.16,1,.3,1), border-color .4s',
+            }}>
+            <Image src={s.image} alt={s.name} fill style={{ objectFit: 'cover', filter: i === cur ? 'brightness(.9)' : 'brightness(.45)' }} sizes="100px" />
+            {i === cur && (
               <div style={{
-                fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: '2rem', fontWeight: 300,
-                color: 'var(--cream)', lineHeight: 1,
-              }}>{s.val}</div>
-              <div style={{ fontSize: '.68rem', letterSpacing: '.08em', color: 'var(--muted)' }}>{s.lbl}</div>
-            </div>
-          </div>
+                position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '.54rem', letterSpacing: '.1em', color: 'var(--cream)', background: 'rgba(0,0,0,.2)',
+              }}>
+                {s.nameParts.colored}
+              </div>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile dot indicators */}
+      <div className="hero-mobile-dots" style={{
+        position: 'absolute', bottom: '1.4rem', left: 0, right: 0, zIndex: 6,
+        justifyContent: 'center', gap: 6,
+      }}>
+        {SLIDES.map((s, i) => (
+          <button key={s.slug} onClick={() => goTo(i)} aria-label={s.name}
+            style={{
+              width: i === cur ? 24 : 6, height: 6, borderRadius: 3,
+              background: i === cur ? s.color : 'rgba(242,237,227,.3)',
+              border: 'none', cursor: 'pointer', padding: 0,
+              transition: 'all .4s cubic-bezier(.16,1,.3,1)',
+            }}
+          />
         ))}
       </div>
 
       <style>{`
-        @media (max-width: 900px) {
-          section > div[style*="grid-template-columns: 1fr auto"] {
-            grid-template-columns: 1fr !important;
-            padding: 0 2rem 4rem !important;
-          }
-          section > div[style*="repeat(4"] {
-            grid-template-columns: repeat(2, 1fr) !important;
-          }
-        }
-        @media (max-width: 600px) {
-          h1 { font-size: 3rem !important; }
+        .hero-side-dots { display: flex !important; }
+        .hero-thumb-strip { display: flex !important; }
+        .hero-mobile-dots { display: none !important; }
+        @media (max-width: 768px) {
+          .hero-side-dots { display: none !important; }
+          .hero-thumb-strip { display: none !important; }
+          .hero-mobile-dots { display: flex !important; }
         }
       `}</style>
-    </section>
+    </div>
   )
 }
