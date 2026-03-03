@@ -4,12 +4,9 @@ import { Location } from '@/lib/locations'
 
 export function FeaturedLocationCard({ loc }: { loc: Location }) {
   return (
-    <div style={{
-      display: 'grid', gridTemplateColumns: '1fr 1fr',
-      minHeight: '70vh', marginBottom: 2,
-    }}>
+    <div className="feat-card">
       {/* Photo */}
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
+      <div className="feat-card-photo">
         <Image
           src={loc.imageFeatured || loc.image}
           alt={loc.name}
@@ -30,12 +27,7 @@ export function FeaturedLocationCard({ loc }: { loc: Location }) {
       </div>
 
       {/* Content */}
-      <div style={{
-        background: 'var(--bark)',
-        padding: '4rem',
-        display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-        border: '1px solid rgba(122,158,95,.1)',
-      }}>
+      <div className="feat-card-body">
         <div style={{
           fontFamily: "'Frank Ruhl Libre', Georgia, serif", fontSize: '6rem', fontWeight: 300,
           lineHeight: 1, color: 'rgba(242,237,227,.06)',
@@ -110,27 +102,13 @@ export function FeaturedLocationCard({ loc }: { loc: Location }) {
         </div>
       </div>
 
-      <style>{`
-        .feat-img:hover { transform: scale(1.04) !important; }
-        @media (max-width: 900px) {
-          div[style*="grid-template-columns: 1fr 1fr"][style*="minHeight"] {
-            grid-template-columns: 1fr !important;
-          }
-          div[style*="grid-template-columns: 1fr 1fr"][style*="minHeight"] > div:first-child {
-            height: 55vw;
-          }
-        }
-      `}</style>
     </div>
   )
 }
 
 export function GridLocationCard({ loc }: { loc: Location }) {
   return (
-    <Link href={`/${loc.slug}`} style={{
-      position: 'relative', overflow: 'hidden',
-      aspectRatio: '2/3', display: 'block',
-    }}>
+    <Link href={`/${loc.slug}`} className='grid-card'>
       <Image
         src={loc.image}
         alt={loc.name}
@@ -188,15 +166,6 @@ export function GridLocationCard({ loc }: { loc: Location }) {
         </span>
       </div>
 
-      <style>{`
-        a:hover .grid-img-${loc.slug} {
-          transform: scale(1.07) !important;
-          filter: brightness(.75) saturate(1.3) !important;
-        }
-        @media (max-width: 600px) {
-          a[style*="aspect-ratio: 2/3"] { aspect-ratio: 3/4 !important; }
-        }
-      `}</style>
     </Link>
   )
 }
