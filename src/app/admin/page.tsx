@@ -1,6 +1,7 @@
 "use client";
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, Eye } from 'lucide-react';
+// הוספנו כאן את MessageSquare לרשימת הייבוא
+import { TrendingUp, Users, Eye, MessageSquare } from 'lucide-react';
 
 export default function AdminDashboard() {
   const stats = [
