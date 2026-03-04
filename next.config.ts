@@ -2,7 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['images.unsplash.com'], // מאפשר טעינת תמונות חיצוניות
+    // השתמשנו ב-remotePatterns כי domains נחשב למיושן בגרסאות החדשות
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
   },
 };
 
