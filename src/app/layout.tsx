@@ -15,13 +15,13 @@ const sans = Inter({ subsets: ["latin"], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: "Between Art & Nature | Atelier",
-  description: "Exclusive Portfolio Curation",
+  description: "Exclusive Portfolio Curation for Luxury Spaces",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="he" dir="rtl" className={`${serif.variable} ${sans.variable}`}>
-      <body className="bg-black text-white antialiased">
+      <body className="bg-black text-white antialiased selection:bg-gold-200 selection:text-black">
         <Navbar />
         <main className="min-h-screen">
           {children}
