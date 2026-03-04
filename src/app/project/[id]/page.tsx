@@ -1,75 +1,66 @@
 "use client";
-
-import React from 'react';
+import { useParams } from 'next/navigation';
+import { ATELIER_PROPERTIES } from '@/lib/constants';
 import { motion } from 'framer-motion';
-import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, MapPin, Maximize, User, Share2 } from 'lucide-react';
 
-export default function ProjectDetail() {
-  const params = useParams();
-  const router = useRouter();
+export default function PropertyPage() {
+  const { id } = useParams();
+  const property = ATELIER_PROPERTIES.find(p => p.id === id);
 
-  // כאן בעתיד נמשוך נתונים לפי ה-ID. כרגע זה Placeholder יוקרתי.
+  if (!property) return <div className="h-screen flex items-center justify-center">Property Not Found</div>;
+
   return (
-    <main className="bg-black min-h-screen">
-      {/* Back Button */}
-      <nav className="fixed top-0 w-full z-50 px-8 py-10 flex justify-between items-center mix-blend-difference">
-        <button onClick={() => router.back()} className="flex items-center gap-2 group text-white">
-          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="text-[10px] uppercase tracking-[0.3em]">Back</span>
-        </button>
-        <Share2 size={18} className="text-white cursor-pointer hover:text-gold-200 transition-colors" />
-      </nav>
-
-      {/* Hero Image */}
-      <section className="relative h-[85vh] w-full overflow-hidden">
+    <div className="bg-black min-h-screen text-white">
+      {/* Cinematic Hero */}
+      <section className="h-screen relative overflow-hidden">
         <motion.img 
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          src="https://images.unsplash.com/photo-1600607687940-477a63bd394c?q=80&w=2070" 
-          className="w-full h-full object-cover brightness-75"
+          transition={{ duration: 1.5 }}
+          src={property.images[0]} 
+          className="w-full h-full object-cover opacity-60"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-        <div className="absolute bottom-12 left-8 md:left-20">
-          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-gold-200 text-[10px] uppercase tracking-[0.5em] mb-4 block">
-            The Collection
+        <div className="absolute inset-0 flex flex-col justify-end p-12 md:p-24 bg-gradient-to-t from-black via-transparent">
+          <motion.span 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-gold-200 text-[10px] uppercase tracking-[0.5em] mb-4"
+          >
+            {property.vibe}
           </motion.span>
-          <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-6xl md:text-9xl font-serif text-white uppercase">
-            {params.id === 'caesarea' ? 'אחוזת הקיסר' : 'בקתות היער'}
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-7xl md:text-[10vw] font-serif leading-none"
+          >
+            {property.title}
           </motion.h1>
         </div>
       </section>
 
-      {/* Stats Bar */}
-      <section className="grid grid-cols-2 md:grid-cols-4 border-y border-white/10 bg-[#0d0d0d]">
-        {[
-          { icon: <MapPin size={14}/>, label: "Location", value: "קיסריה" },
-          { icon: <Maximize size={14}/>, label: "Space", value: "720 sqm" },
-          { icon: <User size={14}/>, label: "Client", value: "Confidential" },
-          { icon: <Share2 size={14}/>, label: "Year", value: "2025" },
-        ].map((item, i) => (
-          <div key={i} className="p-10 border-r border-white/10 flex flex-col gap-2">
-            <span className="text-[9px] uppercase tracking-widest text-gray-500">{item.label}</span>
-            <span className="text-sm font-light text-ivory italic">{item.value}</span>
-          </div>
-        ))}
-      </section>
-
-      {/* Content Section */}
-      <section className="py-32 px-8 md:px-32 grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+      {/* Narrative Section */}
+      <section className="py-32 px-6 md:px-24 grid grid-cols-1 md:grid-cols-2 gap-20">
         <div>
-          <h2 className="text-4xl font-serif mb-8 leading-tight uppercase tracking-tighter">
-            איזון מושלם בין <br /> <span className="italic">חומר לרוח</span>
+          <h2 className="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-8 underline decoration-gold-500/30 underline-offset-8">
+            Concept & Architecture
           </h2>
-          <p className="text-gray-400 font-light leading-relaxed text-lg">
-            הפרויקט הזה נולד מתוך רצון לייצר חלל שלא רק נראה טוב, אלא מרגיש נכון. השימוש באור טבעי כאלמנט עיצובי מרכזי מאפשר לנכס להשתנות לאורך שעות היום.
+          <p className="text-xl font-serif italic text-gray-300 leading-relaxed">
+            "{property.description}"
           </p>
         </div>
-        <div className="aspect-square bg-white/5 overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070" className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity duration-700" />
+        <div className="flex flex-col gap-4 text-xs font-light tracking-widest text-gray-500 uppercase">
+          <p>Architect: {property.architect}</p>
+          <p>Location: {property.location}</p>
+          <p>Status: Private Collection</p>
         </div>
       </section>
-    </main>
+
+      {/* Image Showcase - Large Full Bleed */}
+      <section className="px-6 pb-32">
+        <div className="aspect-video bg-white/5 overflow-hidden">
+           <img src={property.images[0]} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" />
+        </div>
+      </section>
+    </div>
   );
 }
