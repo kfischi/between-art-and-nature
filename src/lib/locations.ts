@@ -38,10 +38,26 @@ export const locations = {
       "https://res.cloudinary.com/decirk3zb/image/upload/v1772466328/11_xsavtz.jpg"
     ],
     seoKeywords: ["פקיעין", "אירוח אותנטי", "סוויטות יוקרה", "אומנות"]
+  },
+  'zuriel': {
+    name: "אחוזת צוריאל",
+    description: "מרחב של שקט ויוקרה במושב צוריאל. עיצוב המשלב חומרים טבעיים ונוחות בלתי מתפשרת.",
+    image: "https://res.cloudinary.com/decirk3zb/image/upload/v1771705570/WhatsApp_Image_2026-02-19_at_22.03.38_bbqqag.jpg",
+    imageFeatured: "https://res.cloudinary.com/decirk3zb/image/upload/v1771705569/WhatsApp_Image_2026-02-19_at_22.03.38_6_uhgvgs.jpg",
+    gallery: [
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705570/WhatsApp_Image_2026-02-19_at_22.03.38_bbqqag.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705569/WhatsApp_Image_2026-02-19_at_22.03.38_6_uhgvgs.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705557/WhatsApp_Image_2026-02-19_at_22.03.37_4_wavzxr.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705555/WhatsApp_Image_2026-02-19_at_22.03.36_6_onigmj.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705556/WhatsApp_Image_2026-02-19_at_22.03.37_2_p2a2vl.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705555/WhatsApp_Image_2026-02-19_at_22.03.36_5_nwgo8q.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705556/WhatsApp_Image_2026-02-19_at_22.03.36_ns0hf5.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705555/WhatsApp_Image_2026-02-19_at_22.03.36_2_bcuftb.jpg"
+    ],
+    seoKeywords: ["אחוזת צוריאל", "וילות יוקרה", "גליל מערבי"]
   }
 };
 
-// ייצוא הפונקציה ש-Next.js מחפש בדפי ה-page.tsx
 export function getLocation(slug: string) {
   const location = locations[slug as keyof typeof locations];
   if (!location) return null;
