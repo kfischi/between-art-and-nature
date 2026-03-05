@@ -1,33 +1,35 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/ui/Navbar";
-import Footer from "@/components/ui/Footer";
-import ArditAgent from "@/components/ui/ArditAgent";
 
-const serif = Cormorant_Garamond({ 
+// פונט בסיס מודרני
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+// פונט Serif יוקרתי לכותרות (הסגנון של מיליון דולר)
+const playfair = Playfair_Display({ 
   subsets: ["latin"], 
-  variable: '--font-serif',
-  weight: ['300', '400', '500', '600'] 
+  style: ['italic', 'normal'],
+  variable: "--font-playfair" 
 });
 
-const sans = Inter({ subsets: ["latin"], variable: '--font-sans' });
-
 export const metadata: Metadata = {
-  title: "Between Art & Nature | Atelier",
-  description: "Exclusive Portfolio Curation for Luxury Spaces",
+  title: "The Artists — אוסף מתחמי אירוח",
+  description: "חוויית אירוח סינמטית המשלבת אדריכלות, טבע ואומנות מקומית.",
+  viewport: "width=device-width, initial-scale=1",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="he" dir="rtl" className={`${serif.variable} ${sans.variable}`}>
-      <body className="bg-black text-white antialiased selection:bg-gold-200 selection:text-black">
-        <Navbar />
-        <main className="min-h-screen">
+    <html lang="he" dir="rtl" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="bg-[#050505] text-white antialiased overflow-x-hidden">
+        {/* הגדרה גלובלית של רקע וצבע טקסט */}
+        <div className="relative min-h-screen">
           {children}
-        </main>
-        <ArditAgent />
-        <Footer />
+        </div>
       </body>
     </html>
   );
