@@ -41,7 +41,7 @@ export const locations = {
   },
   'zuriel': {
     name: "אחוזת צוריאל",
-    description: "מרחב של שקט ויוקרה במושב צוריאל. עיצוב המשלב חומרים טבעיים ונוחות בלתי מתפשרת.",
+    description: "מרחב של שקט ויוקרה במושב צוריאל. עיצוב המשלב חומרים טבעיים ונוחות בלתי מתפשרת מול נופי הגליל המערבי.",
     image: "https://res.cloudinary.com/decirk3zb/image/upload/v1771705570/WhatsApp_Image_2026-02-19_at_22.03.38_bbqqag.jpg",
     imageFeatured: "https://res.cloudinary.com/decirk3zb/image/upload/v1771705569/WhatsApp_Image_2026-02-19_at_22.03.38_6_uhgvgs.jpg",
     gallery: [
@@ -52,12 +52,17 @@ export const locations = {
       "https://res.cloudinary.com/decirk3zb/image/upload/v1771705556/WhatsApp_Image_2026-02-19_at_22.03.37_2_p2a2vl.jpg",
       "https://res.cloudinary.com/decirk3zb/image/upload/v1771705555/WhatsApp_Image_2026-02-19_at_22.03.36_5_nwgo8q.jpg",
       "https://res.cloudinary.com/decirk3zb/image/upload/v1771705556/WhatsApp_Image_2026-02-19_at_22.03.36_ns0hf5.jpg",
-      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705555/WhatsApp_Image_2026-02-19_at_22.03.36_2_bcuftb.jpg"
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771705555/WhatsApp_Image_2026-02-19_at_22.03.36_2_bcuftb.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771706986/4_su0u31.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771706985/1_zxjkwe.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771707164/1_q49spa.jpg",
+      "https://res.cloudinary.com/decirk3zb/image/upload/v1771707165/3_fvqxuv.jpg"
     ],
-    seoKeywords: ["אחוזת צוריאל", "וילות יוקרה", "גליל מערבי"]
+    seoKeywords: ["אחוזת צוריאל", "וילות יוקרה", "גליל מערבי", "אירוח מעוצב"]
   }
 };
 
+// פונקציית העזר לשליפת מידע - קריטית למניעת שגיאות Build
 export function getLocation(slug: string) {
   const location = locations[slug as keyof typeof locations];
   if (!location) return null;
