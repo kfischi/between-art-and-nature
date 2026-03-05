@@ -44,7 +44,8 @@ export const locations = {
     ],
     seoKeywords: ["אחוזת צוריאל", "וילות יוקרה", "גליל מערבי"]
   },
-  'clementine': {
+  // שינינו את המפתח מ-'clementine' ל-'achuzat-klementina'
+  'achuzat-klementina': {
     name: "אחוזת קלמנטינה",
     description: "אלגנטיות כפרית בלב המושבה. אחוזת קלמנטינה מציעה חוויה אינטימית ועוטפת, עם תשומת לב לפרטים הקטנים ביותר.",
     image: "https://res.cloudinary.com/decirk3zb/image/upload/v1772466328/11_xsavtz.jpg",
@@ -67,7 +68,17 @@ export const locations = {
 };
 
 export function getLocation(slug: string) {
+  // החזרת אובייקט ריק כברירת מחדל במקום null כדי למנוע את שגיאת ה-TypeError
   const location = locations[slug as keyof typeof locations];
-  if (!location) return null;
+  if (!location) {
+    return {
+      name: "נכס לא נמצא",
+      description: "",
+      image: "",
+      imageFeatured: "",
+      gallery: [],
+      seoKeywords: []
+    };
+  }
   return location;
 }
