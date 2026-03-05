@@ -1,13 +1,16 @@
 import { Metadata } from 'next'
 import { getLocation } from '@/lib/locations'
 import PropertyPage from '@/components/PropertyPage'
+import { notFound } from 'next/navigation'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const loc = getLocation('pekiin')!
+  const loc = getLocation('pekiin')
+  if (!loc) return { title: 'פקיעין — בין אומנות לטבע' }
+
   return {
     title: `${loc.name} — בין אומנות לטבע`,
     description: loc.description,
-    keywords: loc.seoKeywords.join(', '),
+    keywords: loc.seoKeywords?.join(', ') || 'פקיעין, אירוח אותנטי, גליל',
     openGraph: {
       title: loc.name,
       description: loc.description,
@@ -20,6 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  const loc = getLocation('pekiin')!
+  const loc = getLocation('pekiin')
+  if (!loc) notFound()
+
   return <PropertyPage loc={loc} />
 }
