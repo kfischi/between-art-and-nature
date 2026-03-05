@@ -1,13 +1,18 @@
 import { Metadata } from 'next'
 import { getLocation } from '@/lib/locations'
 import PropertyPage from '@/components/PropertyPage'
+import { notFound } from 'next/navigation'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const loc = getLocation('achuzah-bagalil')!
+  const loc = getLocation('achuzah-bagalil')
+  
+  // הגנה: אם הנכס לא נמצא, נחזיר מטא-דאטה בסיסי במקום לקרוס
+  if (!loc) return { title: 'הנכס לא נמצא' }
+
   return {
     title: `${loc.name} — בין אומנות לטבע`,
     description: loc.description,
-    keywords: loc.seoKeywords.join(', '),
+    keywords: loc.seoKeywords?.join(', ') || '',
     openGraph: {
       title: loc.name,
       description: loc.description,
@@ -20,6 +25,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  const loc = getLocation('achuzah-bagalil')!
+  const loc = getLocation('achuzah-bagalil')
+  
+  // במקום להשתמש ב-! ולהסתכן בקריסה, נשתמש ב-notFound() של Next.js
+  if (!loc) {
+    notFound()
+  }
+
   return <PropertyPage loc={loc} />
 }
